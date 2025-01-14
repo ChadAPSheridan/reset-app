@@ -50,5 +50,3 @@ A minimalist, Kanban-style project management tool designed for teams of 2–5 d
 - **Burnout Tracker:** Simple visual indicators showing when tasks or workloads might be unevenly distributed.  
 
 ---
-
-Would you like to focus on any specific aspect of this tool, or should we expand on implementation details?
