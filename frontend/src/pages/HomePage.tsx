@@ -10,7 +10,6 @@ const HomePage: React.FC = () => {
       <Link to="/tasks" className="btn">
         Go to Task Board
       </Link>
-      <LogoutButton />
     </div>
   );
 };

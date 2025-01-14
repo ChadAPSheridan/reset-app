@@ -1,30 +1,21 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
 
-const Task = sequelize.define('Task', {
+const Column = sequelize.define('Column', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  description: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
   status: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'todo'
+    unique: true,
   },
-  row: {
+  position: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0
   }
 });
 
-export default Task;
+export default Column;

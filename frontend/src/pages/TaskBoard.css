@@ -58,15 +58,72 @@
 }
 
 .task {
+  position: relative;
+  display: block; /* Change to block to ensure tasks are on their own line */
+  border: 1px solid #ccc;
   padding: 10px;
-  margin: 10px 0;
-  background-color: #e9ecef;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  cursor: grab;
+  margin: 5px 0; /* Adjust margin to ensure spacing between tasks */
+  background-color: #f9f9f9;
+  cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .task:hover {
   background-color: #d6d8db;
+}
+
+.task .tooltip {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; /* Position the tooltip above the task */
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.task .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%; /* Arrow at the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.task:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.task-card {
+  position: absolute;
+  top: 100%;
+  left: 100%;
+  width: 200px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  z-index: 1;
+}
+
+.task-card h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.task-card p {
+  margin: 5px 0 0;
+  font-size: 14px;
 }
