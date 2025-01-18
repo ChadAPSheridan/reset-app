@@ -1,7 +1,9 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
+import Column from './columnModel';
+import { TaskInstance } from '../types/task';
 
-const Task = sequelize.define('Task', {
+const Task = sequelize.define<TaskInstance>('Task', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -15,16 +17,19 @@ const Task = sequelize.define('Task', {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  status: {
-    type: DataTypes.STRING,
+  columnId: {
+    type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false,
-    defaultValue: 'todo'
+    references: {
+      model: Column,
+      key: 'id',
+    },
   },
   row: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0
-  }
+    defaultValue: 0,
+  },
 });
 
 export default Task;

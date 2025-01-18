@@ -2,7 +2,8 @@ import { Sequelize } from 'sequelize';
 
 const sequelize = new Sequelize('reset_app', 'reset_user', 'your_password', {
   host: 'localhost',
-  dialect: 'mariadb'
+  dialect: 'mariadb',
+  logging: console.log, // Enable logging for debugging
 });
 
 export const connectToDatabase = async () => {

@@ -49,17 +49,63 @@
   background-color: #fff;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
+}
+
+.column.drag-over {
+  background-color: #f0f0f0; /* Visual indication for drop target */
 }
 
 .column h2 {
   text-align: center;
   color: #333;
   margin-bottom: 20px;
+  cursor: move; /* Make the column title draggable */
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  cursor: move;
+}
+
+.push-pin {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.push-pin.pulled-out {
+  color: red; /* Change color to indicate it's pulled out */
+}
+
+.push-pin.pushed-in {
+  color: green; /* Change color to indicate it's pushed in */
+}
+
+.toggle-drag {
+  margin: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.toggle-drag.enabled {
+  background-color: red;
+  color: white;
+}
+
+.toggle-drag.disabled {
+  background-color: green;
+  color: white;
+}
+
+.drag-handle {
+  margin-right: 8px;
+  cursor: grab;
 }
 
 .task {
   position: relative;
-  display: block; /* Change to block to ensure tasks are on their own line */
+  display: block; /* Ensure tasks are on their own line */
   border: 1px solid #ccc;
   padding: 10px;
   margin: 5px 0; /* Adjust margin to ensure spacing between tasks */
@@ -126,4 +172,43 @@
 .task-card p {
   margin: 5px 0 0;
   font-size: 14px;
+}
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.dialog input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.dialog button {
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.dialog button:first-of-type {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+}
+
+.dialog button:first-of-type:hover {
+  background-color: #0056b3;
 }
