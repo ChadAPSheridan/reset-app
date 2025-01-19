@@ -27,7 +27,13 @@ const initializeDatabase = async () => {
     if (!adminUser) {
       const adminPassword = 'admin_password'; // Replace with a secure password generation method
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
-      await User.create({ username: 'admin', password: hashedPassword });
+      await User.create({
+        firstName: 'Admin',
+        lastName: 'User',
+        username: 'admin',
+        password: hashedPassword,
+        permissionLevel: 'admin',
+      });
       console.log(`Admin user created with password: ${adminPassword}`);
     } else {
       console.log('Admin user already exists.');

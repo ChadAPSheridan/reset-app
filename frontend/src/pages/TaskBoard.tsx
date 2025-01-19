@@ -255,7 +255,15 @@ const TaskBoard: React.FC = () => {
         {renderColumns()}
       </div>
 
-      <Dialog isOpen={isTaskDialogOpen} onClose={() => setIsTaskDialogOpen(false)} title="Add New Task">
+      <Dialog
+        isOpen={isTaskDialogOpen}
+        onClose={() => setIsTaskDialogOpen(false)}
+        title="Add New Task"
+        submitLabel="Add Task"
+        onSubmit={handleAddTask}
+        cancelLabel="Cancel"
+        onCancel={() => setIsTaskDialogOpen(false)}
+      >
         <input
           type="text"
           value={newTaskTitle}
@@ -273,12 +281,17 @@ const TaskBoard: React.FC = () => {
           value={newTaskColumnId.toString()}
           onChange={(value) => setNewTaskColumnId(parseInt(value))}
         />
-        <Button onClick={handleAddTask} icon={faPlus} className="dialog-submit-btn">
-          Add Task
-        </Button>
       </Dialog>
 
-      <Dialog isOpen={isColumnDialogOpen} onClose={() => setIsColumnDialogOpen(false)} title="Add New Column">
+      <Dialog
+        isOpen={isColumnDialogOpen}
+        onClose={() => setIsColumnDialogOpen(false)}
+        title="Add New Column"
+        submitLabel="Add Column"
+        onSubmit={handleAddColumn}
+        cancelLabel="Cancel"
+        onCancel={() => setIsColumnDialogOpen(false)}
+      >
         <input
           type="text"
           value={newColumnTitle}
@@ -286,12 +299,17 @@ const TaskBoard: React.FC = () => {
           placeholder="New column title"
         />
         <div className='dialog-spacer'/>
-        <Button onClick={handleAddColumn} icon={faPlus} className="dialog-submit-btn">
-          Add Column
-        </Button>
       </Dialog>
 
-      <Dialog isOpen={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)} title="Delete Column">
+      <Dialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        title="Delete Column"
+        submitLabel="Confirm"
+        onSubmit={handleDeleteColumn}
+        cancelLabel="Cancel"
+        onCancel={() => setIsDeleteDialogOpen(false)}
+      >
         <p>Are you sure you want to delete this column?</p>
         <p>What would you like to do with the tasks in this column?</p>
         <CustomDropdown
@@ -299,12 +317,17 @@ const TaskBoard: React.FC = () => {
           value={moveTasksToColumnId?.toString() || ''}
           onChange={(value) => setMoveTasksToColumnId(value ? parseInt(value) : null)}
         />
-        <Button onClick={handleDeleteColumn} icon={faTrash}>
-          Confirm
-        </Button>
       </Dialog>
 
-      <Dialog isOpen={isEditTaskDialogOpen} onClose={() => setIsEditTaskDialogOpen(false)} title="Edit Task">
+      <Dialog
+        isOpen={isEditTaskDialogOpen}
+        onClose={() => setIsEditTaskDialogOpen(false)}
+        title="Edit Task"
+        submitLabel="Update Task"
+        onSubmit={handleUpdateTask}
+        cancelLabel="Cancel"
+        onCancel={() => setIsEditTaskDialogOpen(false)}
+      >
         <input
           type="text"
           value={editTaskTitle}
@@ -318,9 +341,6 @@ const TaskBoard: React.FC = () => {
           placeholder="Task description"
         />
         <div className='dialog-spacer'/>
-        <Button onClick={handleUpdateTask} icon={faPlus} className="dialog-submit-btn">
-          Update Task
-        </Button>
         <Button onClick={handleDeleteTask} icon={faTrash} className="dialog-delete-btn">
           Delete Task
         </Button>

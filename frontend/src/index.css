@@ -217,9 +217,8 @@ body {
 
 .delete-btn {
   position: absolute;
-  top: 5px;
   right: 5px;
-  background-color: #dc3545a5;
+  background-color: #dc354575;
   color: #fff;
   border: none;
   padding: 5px;

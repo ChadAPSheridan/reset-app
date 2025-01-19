@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTasks, faCog, faSignOutAlt, faChevronDown, faChevronUp, faBars } from '@fortawesome/free-solid-svg-icons';
@@ -8,6 +8,15 @@ const Menu: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isTasksExpanded, setIsTasksExpanded] = useState(false);
   const [isConfigExpanded, setIsConfigExpanded] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const authUserString = localStorage.getItem('authUser');
+    if (authUserString) {
+      const authUser = JSON.parse(authUserString);
+      setCurrentUser(authUser);
+    }
+  }, []);
 
   const toggleMenu = () => {
     setIsCollapsed(!isCollapsed);
@@ -19,6 +28,10 @@ const Menu: React.FC = () => {
 
   const toggleConfig = () => {
     setIsConfigExpanded(!isConfigExpanded);
+  };
+
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
   return (
@@ -95,8 +108,12 @@ const Menu: React.FC = () => {
           <hr className="logout-separator" />
           <div className="logout-section">
             <div className="user-info">
-              <img src="path/to/profile-pic.jpg" alt="Profile" className="profile-pic" />
-              <span className="username">Username</span>
+              {currentUser && (
+                <>
+                  <div className="user-icon">{getInitials(currentUser.firstName, currentUser.lastName)}</div>
+                  <span className="username">{currentUser.firstName} {currentUser.lastName}</span>
+                </>
+              )}
             </div>
             <LogoutButton />
           </div>
