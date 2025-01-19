@@ -17,9 +17,16 @@ body {
 
 .app {
   display: flex;
+  width: 100%;
   height: 100%;
 }
-
+.content {
+  display: flex;
+  flex-grow: 1;
+  width: 100%;
+  padding: 20px;
+  background-color: #f0f2f5;
+}
 .menu {
   width: 250px;
   background-color: #45DBEE;
@@ -184,4 +191,46 @@ body {
 
 .logout-btn svg {
   margin-right: 10px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  background-color: #3490dc;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+}
+
+.btn svg {
+  margin-right: 10px;
+}
+
+
+.delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #dc3545a5;
+  color: #fff;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+.delete-btn svg {
+  margin:0;
 }

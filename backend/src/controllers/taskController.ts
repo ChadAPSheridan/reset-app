@@ -29,19 +29,23 @@ export const createTask = async (req: Request, res: Response) => {
 export const updateTask = async (req: Request, res: Response) => {
   try {
     const taskId = req.params.id;
-    const { columnId, row } = req.body;
+    const { title, description, columnId, row } = req.body;
 
     const task = await Task.findByPk(taskId);
     if (!task) {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    await Task.update(
-      { row: sequelize.literal('row + 1') },
-      { where: { columnId, row: { [Op.gte]: row } } }
-    );
+    // Update only if columnId and row are provided
+    if (columnId !== undefined && row !== undefined) {
+      await Task.update(
+        { row: sequelize.literal('row + 1') },
+        { where: { columnId, row: { [Op.gte]: row } } }
+      );
+      await task.update({ columnId, row });
+    }
 
-    await task.update({ columnId, row });
+    await task.update({ title, description });
 
     res.status(200).json(task);
   } catch (error) {
