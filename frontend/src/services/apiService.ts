@@ -17,5 +17,13 @@ export const deleteTask = (taskId: number) => {
 
 export const getColumns = () => api.get('/columns');
 export const createColumn = (column: any) => api.post('/columns', column);
-export const updateColumn = (columnId: number, updatedColumn: any) => api.put(`/columns/${columnId}`, updatedColumn);
+export const updateColumn = (columnId: number, updatedColumn: any) => {
+  console.log(`Updating column with ID: ${columnId}`, updatedColumn); // Debug log
+  return api.put(`/columns/${columnId}`, updatedColumn);
+};
 export const deleteColumn = (columnId: number) => api.delete(`/columns/${columnId}`);
+
+export const getUsers = () => api.get('/users');
+export const createUser = (user: any) => api.post('/users', user);
+export const updateUser = (userId: number, updatedUser: any) => api.put(`/users/${userId}`, updatedUser);
+export const deleteUser = (userId: number) => api.delete(`/users/${userId}`);
