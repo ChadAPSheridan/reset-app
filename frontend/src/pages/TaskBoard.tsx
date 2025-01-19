@@ -215,6 +215,15 @@ const TaskBoard: React.FC = () => {
     ));
   };
 
+  const handleDeleteTask = async () => {
+    if (taskToEdit) {
+      await deleteTask(taskToEdit.id);
+      setTasks(tasks.filter(task => task.id !== taskToEdit.id));
+      setIsEditTaskDialogOpen(false);
+      setTaskToEdit(null);
+    }
+  };
+
   const handleUpdateTask = async () => {
     if (taskToEdit) {
       await updateTask(taskToEdit.id, {
@@ -309,9 +318,11 @@ const TaskBoard: React.FC = () => {
           placeholder="Task description"
         />
         <div className='dialog-spacer'/>
-
         <Button onClick={handleUpdateTask} icon={faPlus} className="dialog-submit-btn">
           Update Task
+        </Button>
+        <Button onClick={handleDeleteTask} icon={faTrash} className="dialog-delete-btn">
+          Delete Task
         </Button>
       </Dialog>
     </div>
