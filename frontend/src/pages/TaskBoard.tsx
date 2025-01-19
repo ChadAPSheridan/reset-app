@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './TaskBoard.css';
-import { getTasks, createTask, updateTask, getColumns, createColumn, updateColumn } from '../services/apiService';
-import { Column } from '../types'; // Import Column type
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  columnId: number;
-}
+import { getTasks, createTask, updateTask, deleteTask, getColumns, createColumn, updateColumn, deleteColumn } from '../services/apiService';
+import { Column, Task } from '../types'; // Import Column and Task types
+import Dialog from '../components/Dialog';
+import Button from '../components/Button'; // Import Button component
+import CustomDropdown from '../components/CustomDropdown';
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'; // Import icon
 
 const TaskBoard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -17,7 +14,16 @@ const TaskBoard: React.FC = () => {
   const [newTaskDescription, setNewTaskDescription] = useState('');
   const [newTaskColumnId, setNewTaskColumnId] = useState<number>(1);
   const [newColumnTitle, setNewColumnTitle] = useState('');
-  const [draggedColumnId, setDraggedColumnId] = useState<number | null>(null);
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
+  const [isColumnDialogOpen, setIsColumnDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [columnToDelete, setColumnToDelete] = useState<number | null>(null);
+  const [moveTasksToColumnId, setMoveTasksToColumnId] = useState<number | null>(null);
+  const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null); // State to track expanded task
+  const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [editTaskTitle, setEditTaskTitle] = useState('');
+  const [editTaskDescription, setEditTaskDescription] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,19 +105,68 @@ const TaskBoard: React.FC = () => {
     setTasks([...tasks, newTask.data]);
     setNewTaskTitle('');
     setNewTaskDescription('');
+    setIsTaskDialogOpen(false);
   };
 
   const handleAddColumn = async () => {
     const newColumn = await createColumn({ title: newColumnTitle, position: columns.length });
     setColumns([...columns, newColumn.data]);
     setNewColumnTitle('');
+    setIsColumnDialogOpen(false);
   };
 
-  const handleDoubleClick = (taskId: number) => {
-    const newTitle = prompt('Enter new task title:');
-    if (newTitle) {
-      setTasks(tasks.map(task => task.id === taskId ? { ...task, title: newTitle } : task));
+  const handleDeleteColumn = async () => {
+    if (columnToDelete !== null) {
+      console.log('Attempting to delete column with ID:', columnToDelete); // Debug log
+
+      // Check if the column exists in the state
+      const columnExists = columns.some(column => column.id === columnToDelete);
+      if (!columnExists) {
+        console.error('Column not found in state:', columnToDelete); // Debug log
+        return;
+      }
+
+      if (moveTasksToColumnId !== null) {
+        const tasksToMove = tasks.filter(task => task.columnId === columnToDelete);
+        for (const task of tasksToMove) {
+          await updateTask(task.id, { columnId: moveTasksToColumnId });
+        }
+      } else {
+        const tasksToDelete = tasks.filter(task => task.columnId === columnToDelete);
+        for (const task of tasksToDelete) {
+          console.log(`Deleting task with ID: ${task.id}`); // Debug log
+          await deleteTask(task.id);
+        }
+      }
+
+      try {
+        await deleteColumn(columnToDelete);
+        setColumns(columns.filter(column => column.id !== columnToDelete));
+        setTasks(tasks.filter(task => task.columnId !== columnToDelete));
+        console.log('Column deleted successfully:', columnToDelete); // Debug log
+
+        // Reload tasks after deleting the column
+        const tasksData = await getTasks();
+        setTasks(tasksData.data);
+      } catch (error) {
+        console.error('Error deleting column:', error); // Debug log
+      }
+
+      setIsDeleteDialogOpen(false);
+      setColumnToDelete(null);
+      setMoveTasksToColumnId(null);
     }
+  };
+
+  const handleDoubleClick = (task: Task) => {
+    setTaskToEdit(task);
+    setEditTaskTitle(task.title);
+    setEditTaskDescription(task.description);
+    setIsEditTaskDialogOpen(true);
+  };
+
+  const toggleTaskExpansion = (taskId: number) => {
+    setExpandedTaskId(expandedTaskId === taskId ? null : taskId);
   };
 
   const renderTasks = (columnId: number) => {
@@ -120,13 +175,18 @@ const TaskBoard: React.FC = () => {
       .map(task => (
         <div
           key={task.id}
-          className="task"
+          className={`task ${expandedTaskId === task.id ? 'expanded' : ''}`}
           draggable
           onDragStart={(e) => handleDragStart(e, task.id, 'task')}
-          onDoubleClick={() => handleDoubleClick(task.id)}
+          onDoubleClick={() => handleDoubleClick(task)}
+          onClick={() => toggleTaskExpansion(task.id)}
         >
           <h3>{task.title}</h3>
-          <p>{task.description}</p>
+          {expandedTaskId === task.id && (
+            <div className="description">
+              <p>Description: {task.description}</p>
+            </div>
+          )}
         </div>
       ));
   };
@@ -145,15 +205,48 @@ const TaskBoard: React.FC = () => {
         onDragOver={handleDragOver}
         data-column-id={column.id} // Add data attribute for debugging
       >
-        <h2>{column.title}</h2>
+        <div className="column-header">
+          <h2>{column.title}</h2>
+          <Button onClick={() => { setColumnToDelete(column.id); setIsDeleteDialogOpen(true); }} icon={faTrash} className="delete-btn">
+          </Button>
+        </div>
         {renderTasks(column.id)}
       </div>
     ));
   };
 
+  const handleUpdateTask = async () => {
+    if (taskToEdit) {
+      await updateTask(taskToEdit.id, {
+        title: editTaskTitle,
+        description: editTaskDescription,
+        columnId: taskToEdit.columnId, // Ensure columnId is included
+        row: taskToEdit.row // Ensure row is included
+      });
+      setTasks(tasks.map(task => task.id === taskToEdit.id ? { ...task, title: editTaskTitle, description: editTaskDescription } : task));
+      setIsEditTaskDialogOpen(false);
+      setTaskToEdit(null);
+    }
+  };
+
   return (
     <div className="task-board">
-      <div className="task-form">
+      <div className="task-board-header">
+        <div className="breadcrumb-title">Task Board</div>
+        <div className="task-board-buttons">
+          <Button onClick={() => setIsTaskDialogOpen(true)} icon={faPlus}>
+            Add Task
+          </Button>
+          <Button onClick={() => setIsColumnDialogOpen(true)} icon={faPlus}>
+            Add Column
+          </Button>
+        </div>
+      </div>
+      <div className='task-columns'>
+        {renderColumns()}
+      </div>
+
+      <Dialog isOpen={isTaskDialogOpen} onClose={() => setIsTaskDialogOpen(false)} title="Add New Task">
         <input
           type="text"
           value={newTaskTitle}
@@ -166,30 +259,61 @@ const TaskBoard: React.FC = () => {
           onChange={(e) => setNewTaskDescription(e.target.value)}
           placeholder="New task description"
         />
-        <select
-          value={newTaskColumnId}
-          onChange={(e) => setNewTaskColumnId(parseInt(e.target.value))}
-        >
-          {columns.map(column => (
-            <option key={column.id} value={column.id}>
-              {column.title}
-            </option>
-          ))}
-        </select>
-        <button onClick={handleAddTask}>Add Task</button>
-      </div>
-      <div className="column-form">
+        <CustomDropdown
+          options={columns.map(column => ({ value: column.id.toString(), label: column.title }))}
+          value={newTaskColumnId.toString()}
+          onChange={(value) => setNewTaskColumnId(parseInt(value))}
+        />
+        <Button onClick={handleAddTask} icon={faPlus} className="dialog-submit-btn">
+          Add Task
+        </Button>
+      </Dialog>
+
+      <Dialog isOpen={isColumnDialogOpen} onClose={() => setIsColumnDialogOpen(false)} title="Add New Column">
         <input
           type="text"
           value={newColumnTitle}
           onChange={(e) => setNewColumnTitle(e.target.value)}
           placeholder="New column title"
         />
-        <button onClick={handleAddColumn}>Add Column</button>
-      </div>
-      <div className='task-columns'>
-        {renderColumns()}
-      </div>
+        <div className='dialog-spacer'/>
+        <Button onClick={handleAddColumn} icon={faPlus} className="dialog-submit-btn">
+          Add Column
+        </Button>
+      </Dialog>
+
+      <Dialog isOpen={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)} title="Delete Column">
+        <p>Are you sure you want to delete this column?</p>
+        <p>What would you like to do with the tasks in this column?</p>
+        <CustomDropdown
+          options={[{ value: '', label: 'Delete tasks' }, ...columns.filter(column => column.id !== columnToDelete).map(column => ({ value: column.id.toString(), label: column.title }))]}
+          value={moveTasksToColumnId?.toString() || ''}
+          onChange={(value) => setMoveTasksToColumnId(value ? parseInt(value) : null)}
+        />
+        <Button onClick={handleDeleteColumn} icon={faTrash}>
+          Confirm
+        </Button>
+      </Dialog>
+
+      <Dialog isOpen={isEditTaskDialogOpen} onClose={() => setIsEditTaskDialogOpen(false)} title="Edit Task">
+        <input
+          type="text"
+          value={editTaskTitle}
+          onChange={(e) => setEditTaskTitle(e.target.value)}
+          placeholder="Task title"
+        />
+        <input
+          type="text"
+          value={editTaskDescription}
+          onChange={(e) => setEditTaskDescription(e.target.value)}
+          placeholder="Task description"
+        />
+        <div className='dialog-spacer'/>
+
+        <Button onClick={handleUpdateTask} icon={faPlus} className="dialog-submit-btn">
+          Update Task
+        </Button>
+      </Dialog>
     </div>
   );
 };

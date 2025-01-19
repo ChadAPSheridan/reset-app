@@ -1,9 +1,29 @@
 .task-board {
   display: flex;
+  width: 100%;
   flex-direction: column;
   padding: 20px;
-  background-color: #f0f2f5;
-  min-height: 100vh;
+  background-color: #fafafa;
+  min-height: 90vh;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task-board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.breadcrumb-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.task-board-buttons {
+  display: flex;
+  gap: 10px;
 }
 
 .task-form {
@@ -38,7 +58,7 @@
 
 .task-columns {
   display: flex;
-  justify-content: space-between;
+  gap: 20px;
 }
 
 .column {
@@ -56,17 +76,24 @@
   background-color: #f0f0f0; /* Visual indication for drop target */
 }
 
-.column h2 {
+.column h2,
+.dialog h2 {
   text-align: center;
   color: #333;
   margin-bottom: 20px;
   cursor: move; /* Make the column title draggable */
+  font-weight: bolder;
+  text-transform: capitalize;
+  font-variant: small-caps;
+  font-size: larger;
 }
 
 .column-header {
+  position: relative;
   display: flex;
   align-items: center;
   cursor: move;
+  justify-content: center;
 }
 
 .push-pin {
@@ -105,11 +132,16 @@
 
 .task {
   position: relative;
-  display: block; /* Ensure tasks are on their own line */
-  border: 1px solid #ccc;
   padding: 10px;
   margin: 5px 0; /* Adjust margin to ensure spacing between tasks */
   background-color: #f9f9f9;
+  border: #007bff 5px solid;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+  text-transform: capitalize;
+  font-variant: small-caps;
+  font-size: large;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -118,22 +150,28 @@
   background-color: #d6d8db;
 }
 
-.task .tooltip {
-  visibility: hidden;
-  width: 200px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 5px;
-  padding: 5px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%; /* Position the tooltip above the task */
-  left: 50%;
-  margin-left: -100px;
-  opacity: 0;
-  transition: opacity 0.3s;
+.task.expanded {
+  background-color: #e0e0e0; /* Change background color when expanded */
 }
+
+.task .tooltip {
+  display: none;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-top: #007bff .5px solid;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: normal;
+  font-variant: normal;
+  font-size: medium;
+  text-transform: none;
+}
+
+.task.expanded .tooltip {
+  display: block;
+}
+
+
 
 .task .tooltip::after {
   content: '';
@@ -149,6 +187,23 @@
 .task:hover .tooltip {
   visibility: visible;
   opacity: 1;
+}
+
+.task .description {
+  display: none;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-top: #007bff .5px solid;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: normal;
+  font-variant: normal;
+  font-size: medium;
+  text-transform: none;
+}
+
+.task.expanded .description {
+  display: block;
 }
 
 .task-card {
@@ -184,6 +239,8 @@
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  width: 400px;
+  max-width: 90%;
 }
 
 .dialog input {
@@ -193,6 +250,22 @@
   margin-bottom: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
+}
+
+.dialog select {
+  display: block;
+  width: 60%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px; /* Apply rounded corners */
+  appearance: none; /* Remove default styling */
+  -webkit-appearance: none; /* Remove default styling for Safari */
+  -moz-appearance: none; /* Remove default styling for Firefox */
+  background-color: #fff;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="5" viewBox="0 0 4 5"><path fill="%23333" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>'); /* Custom dropdown arrow */
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
 }
 
 .dialog button {
@@ -212,3 +285,77 @@
 .dialog button:first-of-type:hover {
   background-color: #0056b3;
 }
+.dialog .dialog-submit-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 10px;
+}
+.dialog .dialog-spacer {
+  height: 46px;
+}
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.close-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 20px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 60%;
+}
+
+.custom-dropdown-selected {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="5" viewBox="0 0 4 5"><path fill="%23333" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>'); /* Custom dropdown arrow */
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+}
+
+.custom-dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.custom-dropdown-option {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.custom-dropdown-option:hover {
+  background-color: #f0f0f0;
+}
+

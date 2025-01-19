@@ -1,13 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import Button from './Button';
 
-interface LogoutButtonProps {
-  hideText?: boolean;
-}
-
-const LogoutButton: React.FC<LogoutButtonProps> = ({ hideText }) => {
+const LogoutButton: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -16,10 +12,9 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ hideText }) => {
   };
 
   return (
-    <button onClick={handleLogout} className="logout-btn">
-      <FontAwesomeIcon icon={faSignOutAlt} />
-      {!hideText && <span> Logout</span>}
-    </button>
+    <Button onClick={handleLogout} icon={faSignOutAlt} className="logout-btn">
+      Logout
+    </Button>
   );
 };
 
