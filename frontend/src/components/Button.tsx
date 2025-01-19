@@ -5,7 +5,7 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 interface ButtonProps {
   onClick: () => void;
   icon?: IconDefinition;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 
