@@ -4,7 +4,7 @@ import { Column, Task } from '../types';
 import Dialog from '../components/Dialog';
 import Button from '../components/Button';
 import CustomDropdown from '../components/CustomDropdown';
-import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 
 const TaskBoard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -70,10 +70,20 @@ const TaskBoard: React.FC = () => {
           targetRow = tasks.filter(task => task.columnId === columnId).length + 1;
         }
 
-
         await updateTask(id, { columnId, row: targetRow });
         const updatedTasks = await getTasks();
         setTasks(updatedTasks.data);
+
+        // Check if the "Fresh Start" column is empty and delete it if it is
+        const freshStartColumn = columns.find(col => col.title === 'Fresh Start');
+        if (freshStartColumn) {
+          const freshStartTasks = updatedTasks.data.filter((task: Task) => task.columnId === freshStartColumn.id);
+          if (freshStartTasks.length === 0) {
+            await deleteColumn(freshStartColumn.id);
+            const updatedColumns = await getColumns();
+            setColumns(updatedColumns.data);
+          }
+        }
       }
     } else if (type === 'column') {
       const draggedColumn = columns.find(col => col.id === id);
@@ -229,13 +239,12 @@ const TaskBoard: React.FC = () => {
   };
 
   const renderColumns = () => {
-    // Sort columns by position
     const sortedColumns = [...columns].sort((a, b) => a.position - b.position);
 
     return sortedColumns.map(column => (
       <div
         key={column.id}
-        className="column"
+        className={`column ${column.title === 'Fresh Start' ? 'fresh-start' : ''}`}
         draggable
         onDragStart={(e) => handleDragStart(e, column.id, 'column')}
         onDrop={(e) => handleDrop(e, column.id)}
@@ -282,6 +291,34 @@ const TaskBoard: React.FC = () => {
     }
   };
 
+  const handleFreshStart = async () => {
+    // Create a special "Fresh Start" column
+    const freshStartColumn = await createColumn({ title: 'Fresh Start', description: 'Tasks for the new sprint', position: columns.length });
+
+    // Move all tasks that aren't in the "Done" column to the "Fresh Start" column
+    const updatedTasks = tasks.map(async (task) => {
+      if (task.columnId !== columns.find(col => col.title === 'Done')?.id) {
+        await updateTask(task.id, { columnId: freshStartColumn.data.id });
+      }
+    });
+
+    await Promise.all(updatedTasks);
+
+    // Delete all tasks in the "Done" column
+    const doneColumnId = columns.find(col => col.title === 'Done')?.id;
+    if (doneColumnId) {
+      const tasksToDelete = tasks.filter(task => task.columnId === doneColumnId);
+      const deleteTasks = tasksToDelete.map(task => deleteTask(task.id));
+      await Promise.all(deleteTasks);
+    }
+
+    // Refresh the tasks and columns
+    const tasksData = await getTasks();
+    setTasks(tasksData.data);
+    const columnsData = await getColumns();
+    setColumns(columnsData.data);
+  };
+
   return (
     <div className="task-board">
       <div className="task-board-header">
@@ -292,6 +329,9 @@ const TaskBoard: React.FC = () => {
           </Button>
           <Button onClick={() => setIsColumnDialogOpen(true)} icon={faPlus}>
             Add Column
+          </Button>
+          <Button onClick={handleFreshStart} icon={faSync}>
+            Fresh Start
           </Button>
         </div>
       </div>

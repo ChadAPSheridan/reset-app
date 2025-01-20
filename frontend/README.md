@@ -7,6 +7,9 @@ Reset is a minimalist, Kanban-style project management tool designed for small p
 - **Lightweight Kanban Board**: Customizable lanes and dependencies visualization.
 - **Minimal Overhead**: Quick task creation and simple permissions.
 - **Fresh Start Sprints**: Clear the board at the start of each sprint and re-prioritize tasks.
+
+
+## Planned
 - **Integrated Developer Tools**: Connect with code repositories and attach inline snippets.
 - **Reflection and Iteration**: Retro board for notes and progress snapshots.
 

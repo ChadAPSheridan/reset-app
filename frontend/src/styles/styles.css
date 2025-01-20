@@ -336,6 +336,10 @@ body {
   background-color: #f0f0f0;
 }
 
+.column.fresh-start {
+  background-color: #ffeb3b; /* Yellow background for Fresh Start column */
+}
+
 .column h2,
 .dialog h2 {
   text-align: center;
