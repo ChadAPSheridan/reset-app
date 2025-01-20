@@ -39,8 +39,8 @@ export const updateColumn = async (req: Request, res: Response) => {
     const { title, description, position } = req.body;
 
     // Debug log to check the columnId
-    console.log('Updating column with ID:', columnId);
-    console.log('Request body:', req.body);
+    // console.log('Updating column with ID:', columnId);
+    // console.log('Request body:', req.body);
 
     const column = await Column.findByPk(columnId);
     if (!column) {
@@ -52,7 +52,7 @@ export const updateColumn = async (req: Request, res: Response) => {
       const columns = await Column.findAll();
       const draggedColumn = columns.find(col => col.id === parseInt(columnId));
       if (draggedColumn) {
-        console.log('Dragged column:', draggedColumn); 
+        // console.log('Dragged column:', draggedColumn); 
 
         const updatedColumns = columns.map(col => {
           if (col.id === draggedColumn.id) {
@@ -67,7 +67,7 @@ export const updateColumn = async (req: Request, res: Response) => {
 
         for (const col of updatedColumns) {
           // Debug log to check the column position update
-          console.log('Updating column position:', col.id, col.position);
+          // console.log('Updating column position:', col.id, col.position);
           if (col.id !== undefined) {
             await Column.update({ position: col.position }, { where: { id: col.id } });
           }

@@ -29,6 +29,8 @@ const TaskBoard: React.FC = () => {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [users, setUsers] = useState<any[]>([]);
   const [editTaskUserId, setEditTaskUserId] = useState<number | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,11 +50,25 @@ const TaskBoard: React.FC = () => {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const authUserString = localStorage.getItem('authUser');
+    if (authUserString) {
+      const authUser = JSON.parse(authUserString);
+      setCurrentUser(authUser);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (taskToEdit) {
+      setEditTaskUserId(taskToEdit.userId || null);
+    }
+  }, [taskToEdit]);
+
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: number, type: 'task' | 'column') => {
     e.stopPropagation();
     e.dataTransfer.setData('id', id.toString());
     e.dataTransfer.setData('type', type);
-    console.log(`Drag started for ${type} ID:`, id);
+    // console.log(`Drag started for ${type} ID:`, id);
   };
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>, columnId: number, targetRow?: number) => {
@@ -64,7 +80,7 @@ const TaskBoard: React.FC = () => {
     if (type === 'task') {
       const task = tasks.find(task => task.id === id);
       if (task && (task.columnId !== columnId || task.row !== targetRow)) {
-        console.log(`Moving task with ID ${id} to column with ID ${columnId} at row ${targetRow}`);
+        // console.log(`Moving task with ID ${id} to column with ID ${columnId} at row ${targetRow}`);
         // if targetRow is undefined, set it to the last row of the target column
         if (targetRow === undefined) {
           targetRow = tasks.filter(task => task.columnId === columnId).length + 1;
@@ -117,7 +133,7 @@ const TaskBoard: React.FC = () => {
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    console.log('Drag over column ID:', e.currentTarget.dataset.columnId);
+    // console.log('Drag over column ID:', e.currentTarget.dataset.columnId);
   };
 
   const handleAddTask = async () => {
@@ -138,7 +154,7 @@ const TaskBoard: React.FC = () => {
 
   const handleDeleteColumn = async () => {
     if (columnToDelete !== null) {
-      console.log('Attempting to delete column with ID:', columnToDelete);
+      // console.log('Attempting to delete column with ID:', columnToDelete);
 
       // Check if the column exists in the state
       const columnExists = columns.some(column => column.id === columnToDelete);
@@ -146,7 +162,7 @@ const TaskBoard: React.FC = () => {
         console.error('Column not found in state:', columnToDelete);
         return;
       }
-      console.log('Value of moveTasksToColumnId:', moveTasksToColumnId);
+      // console.log('Value of moveTasksToColumnId:', moveTasksToColumnId);
       if (moveTasksToColumnId !== 'disabled') {
         const targetColumnId = parseInt(moveTasksToColumnId, 10);
         const tasksToMove = tasks.filter(task => task.columnId === columnToDelete);
@@ -159,13 +175,13 @@ const TaskBoard: React.FC = () => {
         // Move tasks to the target column starting with the highest row + 1
         for (let i = 0; i < tasksToMove.length; i++) {
           const task = tasksToMove[i];
-          console.log(`Moving task with ID ${task.id} to column with ID ${targetColumnId} at row ${highestRow + 1 + i}`);
+          // console.log(`Moving task with ID ${task.id} to column with ID ${targetColumnId} at row ${highestRow + 1 + i}`);
           await updateTask(task.id, { columnId: targetColumnId, row: highestRow + 1 + i });
         }
       } else {
         const tasksToDelete = tasks.filter(task => task.columnId === columnToDelete);
         for (const task of tasksToDelete) {
-          console.log(`Deleting task with ID: ${task.id}`);
+          // console.log(`Deleting task with ID: ${task.id}`);
           await deleteTask(task.id);
         }
       }
@@ -174,7 +190,7 @@ const TaskBoard: React.FC = () => {
         await deleteColumn(columnToDelete);
         setColumns(columns.filter(column => column.id !== columnToDelete));
         setTasks(tasks.filter(task => task.columnId !== columnToDelete));
-        console.log('Column deleted successfully:', columnToDelete);
+        // console.log('Column deleted successfully:', columnToDelete);
 
         // Reload tasks after deleting the column
         const tasksData = await getTasks();
@@ -208,7 +224,7 @@ const TaskBoard: React.FC = () => {
         const assignedUser = users.find(user => user.id === task.userId);
         const userInitials = assignedUser ? `${assignedUser.firstName.charAt(0)}${assignedUser.lastName.charAt(0)}`.toUpperCase() : '';
         const userFullName = assignedUser ? `${assignedUser.firstName} ${assignedUser.lastName}` : 'Unassigned';
-  
+
         return (
           <div
             key={task.id}
@@ -448,11 +464,27 @@ const TaskBoard: React.FC = () => {
           rows={3}
           className="description-textarea"
         />
-        <CustomDropdown
-          options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
-          value={editTaskUserId?.toString() || ''}
-          onChange={(value) => setEditTaskUserId(parseInt(value))}
-        />
+        <p>Assigned to: </p>
+        {taskToEdit?.userId ? (
+          <CustomDropdown
+            options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
+            value={editTaskUserId?.toString() || ''}
+            onChange={(value) => setEditTaskUserId(parseInt(value))}
+            disabled={currentUser?.permissionLevel !== 'admin'}
+          />
+        ) : (
+          currentUser?.permissionLevel === 'user' && (
+            <Button
+              onClick={() => {
+                setEditTaskUserId(currentUser.id);
+                setTaskToEdit(taskToEdit ? { ...taskToEdit, userId: currentUser.id } : null);
+              }}
+              className="assign-btn"
+            >
+              {editTaskUserId === currentUser.id ? `Assigned to ${currentUser.firstName} ${currentUser.lastName}` : 'Assign To Me'}
+            </Button>
+          )
+        )}
         <Button onClick={() => openDeleteTaskDialog(taskToEdit!)} icon={faTrash} className="delete-btn dialog-delete-btn">
         </Button>
       </Dialog>

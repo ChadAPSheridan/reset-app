@@ -123,7 +123,6 @@ const UserManagement: React.FC = () => {
           Add User
         </Button>
       )}
-      {error && <p className="error">{error}</p>}
       <ul className="user-list">
         {users.map(user => (
           <li key={user.id} className="user-item">
@@ -197,6 +196,7 @@ const UserManagement: React.FC = () => {
             <option value="admin">Admin</option>
           </select>
         </div>
+        {error && <p className="error">{error}</p>}
       </Dialog>
 
       <Dialog
@@ -246,6 +246,8 @@ const UserManagement: React.FC = () => {
             <option value="admin">Admin</option>
           </select>
         </div>
+        {error && <p className="error">{error}</p>}
+
       </Dialog>
 
       <Dialog

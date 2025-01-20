@@ -20,7 +20,6 @@
     "nodemon": "^3.1.9",
     "semver": "^7.6.3",
     "sequelize": "^6.37.5",
-    "simple-update-notifier": "^2.0.0",
     "ts-node": "^10.4.0"
   },
   "devDependencies": {
@@ -37,7 +36,7 @@
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.3"
   },
-  "author": "Your Name",
+  "author": "Chad Sheridan",
   "license": "MIT",
   "keywords": [],
   "type": "commonjs"
