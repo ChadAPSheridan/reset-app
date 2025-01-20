@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -110,7 +113,7 @@ const LoginPage: React.FC = () => {
         className="particles"
       />
       <div className="login-container">
-      <img src="/logo.png" alt="Company Logo" className="logo-image" />
+        <img src="/logo.png" alt="Company Logo" className="logo-image" />
         <h1 className='app-name'>Reset</h1>
         <h3 className='app-description'>Task Management System</h3>
         <h1>Login</h1>
@@ -126,12 +129,21 @@ const LoginPage: React.FC = () => {
           </div>
           <div className="form-group">
             <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="password-input-container">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </button>
+            </div>
           </div>
           <button type="submit" className="login-btn">Login</button>
         </form>
