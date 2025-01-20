@@ -1,5 +1,15 @@
 import { Request, Response } from 'express';
 import Column from '../models/columnModel';
+import { Op } from 'sequelize';
+import sequelize from '../config/database'; // Import sequelize instance
+
+// Helper function to renumber positions of columns
+const renumberColumnPositions = async () => {
+  const columns = await Column.findAll({ order: [['position', 'ASC']] });
+  for (let i = 0; i < columns.length; i++) {
+    await columns[i].update({ position: i });
+  }
+};
 
 export const getColumns = async (req: Request, res: Response) => {
   try {
@@ -15,6 +25,7 @@ export const createColumn = async (req: Request, res: Response) => {
   try {
     const { title, description, position } = req.body;
     const column = await Column.create({ title, description, position });
+    await renumberColumnPositions(); // Renumber positions after creating a column
     res.status(201).json(column);
   } catch (error) {
     console.error('Error creating column:', error);
@@ -65,6 +76,7 @@ export const updateColumn = async (req: Request, res: Response) => {
     }
 
     await column.update({ title, description, position });
+    await renumberColumnPositions(); // Renumber positions after updating a column
     res.status(200).json(column);
   } catch (error) {
     console.error('Error updating column:', error);
@@ -82,6 +94,8 @@ export const deleteColumn = async (req: Request, res: Response) => {
     }
 
     await column.destroy();
+    await renumberColumnPositions(); // Renumber positions after deleting a column
+
     res.status(204).send();
   } catch (error) {
     console.error('Error deleting column:', error);

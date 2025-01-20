@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
-import './LoginPage.css'; // Import the CSS file
+// import './LoginPage.css'; // Import the CSS file
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
