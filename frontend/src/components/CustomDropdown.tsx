@@ -4,9 +4,10 @@ interface CustomDropdownProps {
   options: { value: string; label: string }[];
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChange }) => {
+const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChange, disabled }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOptionClick = (value: string) => {
@@ -15,8 +16,11 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
   };
 
   return (
-    <div className="custom-dropdown">
-      <div className="custom-dropdown-selected" onClick={() => setIsOpen(!isOpen)}>
+    <div className={`custom-dropdown ${disabled ? 'disabled' : ''}`}>
+      <div
+        className="custom-dropdown-selected"
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
         {options.find(option => option.value === value)?.label}
       </div>
       {isOpen && (
@@ -25,7 +29,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
             <div
               key={option.value}
               className="custom-dropdown-option"
-              onClick={() => handleOptionClick(option.value)}
+              onClick={() => !disabled && handleOptionClick(option.value)}
             >
               {option.label}
             </div>

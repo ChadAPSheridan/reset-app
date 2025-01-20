@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
-// import './LoginPage.css'; // Import the CSS file
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -27,7 +26,7 @@ const LoginPage: React.FC = () => {
   };
 
   const particlesLoaded = async (container: any): Promise<void> => {
-    console.log(container);
+    // console.log(container);
   };
 
   return (
@@ -39,7 +38,7 @@ const LoginPage: React.FC = () => {
         options={{
           background: {
             color: {
-              value: "#f0f2f5",
+              value: "#45BDEE",
             },
           },
           fpsLimit: 60,
@@ -67,10 +66,10 @@ const LoginPage: React.FC = () => {
           },
           particles: {
             color: {
-              value: "#007bff",
+              value: "#ffffff",
             },
             links: {
-              color: "#007bff",
+              color: "#fff",
               distance: 150,
               enable: true,
               opacity: 0.5,
@@ -97,7 +96,7 @@ const LoginPage: React.FC = () => {
               value: 80,
             },
             opacity: {
-              value: 0.5,
+              value: 0.7,
             },
             shape: {
               type: "circle",
@@ -111,6 +110,9 @@ const LoginPage: React.FC = () => {
         className="particles"
       />
       <div className="login-container">
+      <img src="/logo.png" alt="Company Logo" className="logo-image" />
+        <h1 className='app-name'>Reset</h1>
+        <h3 className='app-description'>Task Management System</h3>
         <h1>Login</h1>
         <form onSubmit={handleLogin}>
           <div className="form-group">

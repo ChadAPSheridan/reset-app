@@ -9,7 +9,7 @@ export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   try {
-    console.log('Login attempt:', { username, password }); // Log the login attempt
+    // console.log('Login attempt:', { username, password }); // Log the login attempt
     const user = await User.findOne({ where: { username } });
     if (!user) {
       console.log('User not found'); // Log if user is not found
