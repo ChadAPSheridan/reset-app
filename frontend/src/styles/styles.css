@@ -276,7 +276,16 @@ body {
   display: flex;
   gap: 10px;
 }
-
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.task-header .user-icon {
+  width: 30px;
+  height: 30px;
+  margin: -5px 10px;
+}
 .task-form {
   display: flex;
   justify-content: space-between;

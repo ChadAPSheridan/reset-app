@@ -38,7 +38,7 @@ export const createTask = async (req: Request, res: Response) => {
 export const updateTask = async (req: Request, res: Response) => {
   try {
     const taskId = req.params.id;
-    const { title, description, columnId, row } = req.body;
+    const { title, description, columnId, row, userId } = req.body;
 
     const task = await Task.findByPk(taskId);
     if (!task) {
@@ -72,7 +72,7 @@ export const updateTask = async (req: Request, res: Response) => {
       await renumberTaskRows(task.columnId); // Renumber rows in the column
     }
 
-    await task.update({ title, description });
+    await task.update({ title, description, userId });
     res.status(200).json(task);
   } catch (error) {
     console.error('Error updating task:', error);
