@@ -41,15 +41,26 @@ body {
 }
 
 .menu.collapsed {
-  width: 50px;
+  width: 75px;
 }
 
 .menu.collapsed .menu-item .chevron,
-.menu.collapsed .logout-section .logout-text,
-.menu.collapsed .logout-button .logout-text {
+.menu.collapsed .logout-section .user-details,
+.menu.collapsed .logout-btn span {
+  display: none !important;
+}
+.menu.collapsed .logout-btn {
+  width: 100%;
+}
+.menu.collapsed .user-icon {
+  margin: -1px;
+}
+.menu.collapsed h2{
+  width: 51px;
+}
+.menu.collapsed .submenu {
   display: none;
 }
-
 .logo {
   margin-bottom: 20px;
   text-decoration: none;
@@ -117,7 +128,9 @@ body {
 .chevron {
   margin-left: auto;
 }
-
+.logo-image {
+  border: none;
+}
 .menu-icon {
   position: relative;
 }
@@ -133,29 +146,48 @@ body {
   z-index: 1000;
 }
 
-.menu-section:hover .submenu {
+.menu-section:hover .submenu,
+.menu-section .submenu:hover {
+  width: 200px;
   display: block;
 }
 
 .logout-container {
+  position:relative;
   margin-top: auto;
 }
 
 .logout-section {
-  height: 15%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  margin-top: 10px;
 }
-
+.logout-btn-container {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  align-items: center;
+}
 .user-info {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
 }
+.user-details {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+}
 
 .username {
   font-size: 1em;
+}
+
+.user-role {
+  font-size: 0.8em;
+  text-transform: capitalize;
+  color: #f0f2f5;
 }
 
 .logout-btn,
@@ -178,9 +210,14 @@ body {
   background-color: grey !important;
   opacity: .5;
 }
-.logout-btn svg,
 .btn svg {
   margin-right: 10px;
+}
+.logout-btn {
+  width: 50%;
+}
+.logout-btn svg{
+  margin: 0;
 }
 
 .btn:hover,

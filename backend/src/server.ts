@@ -46,7 +46,8 @@ const initializeDatabase = async () => {
       await Column.bulkCreate([
         { title: 'To Do', description: 'Tasks to be done', position: 1 },
         { title: 'In Process', description: 'Tasks in progress', position: 2 },
-        { title: 'Done', description: 'Completed tasks', position: 3 },
+        { title: 'Review', description: 'Tasks to be reviewed', position: 3 },
+        { title: 'Done', description: 'Completed tasks', position: 4 },
       ]);
       console.log('Default columns created: To Do, In Process, Done');
     } else {
