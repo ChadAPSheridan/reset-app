@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getTasks, createTask, updateTask, deleteTask, getColumns, createColumn, updateColumn, deleteColumn } from '../services/apiService';
+import { getTasks, createTask, updateTask, deleteTask, getColumns, createColumn, updateColumn, deleteColumn, getUsers } from '../services/apiService';
 import { Column, Task } from '../types';
 import Dialog from '../components/Dialog';
 import Button from '../components/Button';
@@ -27,7 +27,8 @@ const TaskBoard: React.FC = () => {
   const [isDeleteTaskDialogOpen, setIsDeleteTaskDialogOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-
+  const [users, setUsers] = useState<any[]>([]);
+  const [editTaskUserId, setEditTaskUserId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +38,14 @@ const TaskBoard: React.FC = () => {
       setColumns(columnsData.data);
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const response = await getUsers();
+      setUsers(response.data);
+    };
+    fetchUsers();
   }, []);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: number, type: 'task' | 'column') => {
@@ -110,7 +119,7 @@ const TaskBoard: React.FC = () => {
   };
 
   const handleAddColumn = async () => {
-    const newColumn = await createColumn({ title: newColumnTitle, description: newColumnDescription,position: columns.length });
+    const newColumn = await createColumn({ title: newColumnTitle, description: newColumnDescription, position: columns.length });
     setColumns([...columns, newColumn.data]);
     setNewColumnTitle('');
     setNewColumnDescription('');
@@ -185,25 +194,38 @@ const TaskBoard: React.FC = () => {
     return tasks
       .filter(task => task.columnId === columnId)
       .sort((a, b) => a.row - b.row) // Ensure tasks are sorted by row
-      .map((task, index) => (
-        <div
-          key={task.id}
-          className={`task ${expandedTaskId === task.id ? 'expanded' : ''}`}
-          draggable
-          onDragStart={(e) => handleDragStart(e, task.id, 'task')}
-          onDrop={(e) => handleDrop(e, columnId, index)}
-          onDragOver={handleDragOver}
-          onDoubleClick={() => handleDoubleClick(task)}
-          onClick={() => toggleTaskExpansion(task.id)}
-        >
-          <h3>{task.title}</h3>
-          {expandedTaskId === task.id && (
-            <div className="description">
-              <p>Description: {task.description}</p>
+      .map((task, index) => {
+        const assignedUser = users.find(user => user.id === task.userId);
+        const userInitials = assignedUser ? `${assignedUser.firstName.charAt(0)}${assignedUser.lastName.charAt(0)}`.toUpperCase() : '';
+        const userFullName = assignedUser ? `${assignedUser.firstName} ${assignedUser.lastName}` : 'Unassigned';
+  
+        return (
+          <div
+            key={task.id}
+            className={`task ${expandedTaskId === task.id ? 'expanded' : ''}`}
+            draggable
+            onDragStart={(e) => handleDragStart(e, task.id, 'task')}
+            onDrop={(e) => handleDrop(e, columnId, index)}
+            onDragOver={handleDragOver}
+            onDoubleClick={() => handleDoubleClick(task)}
+            onClick={() => toggleTaskExpansion(task.id)}
+          >
+            <div className="task-header">
+              <h3>{task.title}</h3>
+              {assignedUser && (
+                <div className="user-icon" title={userFullName}>
+                  {userInitials}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      ));
+            {expandedTaskId === task.id && (
+              <div className="description">
+                <p>Description: {task.description}</p>
+              </div>
+            )}
+          </div>
+        );
+      });
   };
 
   const renderColumns = () => {
@@ -251,9 +273,10 @@ const TaskBoard: React.FC = () => {
         title: editTaskTitle,
         description: editTaskDescription,
         columnId: taskToEdit.columnId, // Ensure columnId is included
-        row: taskToEdit.row // Ensure row is included
+        row: taskToEdit.row, // Ensure row is included
+        userId: editTaskUserId, // Include userId
       });
-      setTasks(tasks.map(task => task.id === taskToEdit.id ? { ...task, title: editTaskTitle, description: editTaskDescription } : task));
+      setTasks(tasks.map(task => task.id === taskToEdit.id ? { ...task, title: editTaskTitle, description: editTaskDescription, userId: editTaskUserId } : task));
       setIsEditTaskDialogOpen(false);
       setTaskToEdit(null);
     }
@@ -385,22 +408,13 @@ const TaskBoard: React.FC = () => {
           rows={3}
           className="description-textarea"
         />
+        <CustomDropdown
+          options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
+          value={editTaskUserId?.toString() || ''}
+          onChange={(value) => setEditTaskUserId(parseInt(value))}
+        />
         <Button onClick={() => openDeleteTaskDialog(taskToEdit!)} icon={faTrash} className="delete-btn dialog-delete-btn">
         </Button>
-      </Dialog>
-
-      <Dialog
-        isOpen={isDeleteTaskDialogOpen}
-        onClose={() => setIsDeleteTaskDialogOpen(false)}
-        title="Delete Task"
-        submitLabel="Confirm"
-        onSubmit={handleDeleteTask}
-        cancelLabel="Cancel"
-        onCancel={() => setIsDeleteTaskDialogOpen(false)}
-      >
-        <div className="dialog-content">
-          <p>Are you sure you want to delete this task?</p>
-        </div>
       </Dialog>
     </div>
   );

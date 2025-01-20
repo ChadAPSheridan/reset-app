@@ -11,4 +11,5 @@ export interface Task {
   description: string;
   columnId: number;
   row: number; // Add row property
+  userId?: number | null; // Add userId property
 }

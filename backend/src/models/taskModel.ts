@@ -1,6 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
 import Column from './columnModel';
+import User from './userModel'; // Import User model
 import { TaskInstance } from '../types/task';
 
 const Task = sequelize.define<TaskInstance>('Task', {
@@ -29,6 +30,14 @@ const Task = sequelize.define<TaskInstance>('Task', {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: User,
+      key: 'id',
+    },
   },
 });
 

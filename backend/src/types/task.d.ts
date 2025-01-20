@@ -6,6 +6,7 @@ export interface TaskAttributes {
   description: string;
   columnId: number;
   row: number;
+  userId?: number | null;
 }
 
 export interface TaskInstance extends Model<TaskAttributes>, TaskAttributes {}
