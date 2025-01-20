@@ -6,12 +6,13 @@ interface DialogProps {
   title: string;
   children: React.ReactNode;
   submitLabel?: string;
+  submitDisabled?: boolean;
   onSubmit?: () => void;
   cancelLabel?: string;
   onCancel?: () => void;
 }
 
-const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, title, children, submitLabel, onSubmit, cancelLabel, onCancel }) => {
+const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, title, children, submitLabel, submitDisabled, onSubmit, cancelLabel, onCancel }) => {
   if (!isOpen) return null;
 
   return (
@@ -19,10 +20,12 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, title, children, submi
       <div className="dialog">
         <h2>{title}</h2>
         <button onClick={onClose} className="close-btn">x</button>
-        {children}
+        <div className="dialog-children">
+          {children}
+        </div>
         <div className="dialog-actions">
           {submitLabel && onSubmit && (
-            <button onClick={onSubmit} className="dialog-submit-btn">
+            <button onClick={onSubmit} className="dialog-submit-btn" disabled={submitDisabled}>
               {submitLabel}
             </button>
           )}

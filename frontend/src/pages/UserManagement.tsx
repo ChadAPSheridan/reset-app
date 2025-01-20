@@ -3,7 +3,7 @@ import { getUsers, createUser, updateUser, deleteUser } from '../services/apiSer
 import Dialog from '../components/Dialog';
 import Button from '../components/Button';
 import { faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
-import './UserManagement.css'; // Import the CSS file
+// import './UserManagement.css'; // Import the CSS file
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -143,7 +143,6 @@ const UserManagement: React.FC = () => {
               </Button>
               {currentUser?.permissionLevel === 'admin' && (
                 <Button onClick={() => openDeleteDialog(user.id)} icon={faTrash} className="delete-btn">
-                  Delete
                 </Button>
               )}
             </div>

@@ -7,11 +7,12 @@ interface ButtonProps {
   icon?: IconDefinition;
   children?: React.ReactNode;
   className?: string;
+  disabled?: boolean; // Add disabled prop
 }
 
-const Button: React.FC<ButtonProps> = ({ onClick, icon, children, className }) => {
+const Button: React.FC<ButtonProps> = ({ onClick, icon, children, className, disabled }) => {
   return (
-    <button onClick={onClick} className={`btn ${className}`}>
+    <button onClick={onClick} className={`btn ${className}`} disabled={disabled}>
       {icon && <FontAwesomeIcon icon={icon} />}
       <span>{children}</span>
     </button>
