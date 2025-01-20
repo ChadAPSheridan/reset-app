@@ -1,14 +1,18 @@
 # Reset
 
 ## Overview
-Reset is a minimalist, Kanban-style project management tool designed for small programming teams. It emphasizes frictionless task management and encourages iterative progress through regular "reset moments" for sprint planning and retrospectives.
+Reset is a minimalist, Kanban-style project management tool designed for small programming teams. It emphasizes regular "reset moments" for sprint planning and retrospectives, enabling teams to stay focused and ship fast.
 
 ## Features
-- **Fresh Start Sprints**: Clear the board at the start of each sprint and re-prioritize tasks.
 - **Lightweight Kanban Board**: Customizable lanes and dependencies visualization.
-- **Integrated Developer Tools**: Connect with code repositories and attach inline snippets.
-- **Reflection and Iteration**: Retro board for team reflections and progress snapshots.
 - **Minimal Overhead**: Quick task creation and simple permissions.
+- **Fresh Start Sprints**: Clear the board at the start of each sprint and re-prioritize tasks.
+
+
+## Planned
+- **Integrated Developer Tools**: Connect with code repositories and attach inline snippets.
+- **Reflection and Iteration**: Retro board for notes and progress snapshots.
+
 
 ## Tech Stack
 - **Frontend**: React, TypeScript, CSS
@@ -30,7 +34,7 @@ Reset is a minimalist, Kanban-style project management tool designed for small p
 
 ### Configuration
 1. Configure the database connection in the backend:
-- Update the database configuration in [backend/src/config/database.ts](backend/src/config/database.ts) with your MariaDB credentials.
+- Update the database configuration in [backend/src/config/database.ts](backend/src/config/database.ts) with your MariaDB credentials (note the password needs updated in 2 locations).
 2. Configure Nginx:
 - Update the Nginx configuration in [nginx/nginx.conf](nginx/nginx.conf) to point to the correct paths for your setup.
 
