@@ -236,6 +236,7 @@ const TaskBoard: React.FC = () => {
       setTasks(tasks.filter(task => task.id !== taskToDelete.id));
       setIsDeleteTaskDialogOpen(false);
       setTaskToDelete(null);
+      setIsEditTaskDialogOpen(false); // Close the edit task dialog
     }
   };
 

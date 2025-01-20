@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTasks, faCog, faSignOutAlt, faChevronDown, faChevronUp, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faTasks, faCog, faSignOutAlt, faChevronDown, faChevronUp, faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import LogoutButton from './LogoutButton';
 
 const Menu: React.FC = () => {
@@ -37,11 +37,11 @@ const Menu: React.FC = () => {
   return (
     <div className={`menu ${isCollapsed ? 'collapsed' : ''}`}>
       <Link to="/" className="logo">
-        {!isCollapsed && <h1>Company Logo</h1>}
+        <img src="/logo.png" alt="Company Logo" className="logo-image" />
       </Link>
       <hr className="menu-separator" />
       <button onClick={toggleMenu} className="toggle-btn">
-        <FontAwesomeIcon icon={faBars} />
+        <FontAwesomeIcon icon={isCollapsed ? faChevronRight : faChevronLeft} />
       </button>
       <div className="menu-content">
         <div className="menu-sections">
@@ -111,11 +111,16 @@ const Menu: React.FC = () => {
               {currentUser && (
                 <>
                   <div className="user-icon">{getInitials(currentUser.firstName, currentUser.lastName)}</div>
-                  <span className="username">{currentUser.firstName} {currentUser.lastName}</span>
+                  <div className="user-details">
+                    <span className="username">{currentUser.firstName} {currentUser.lastName}</span>
+                    <span className="user-role">{currentUser.permissionLevel}</span>
+                  </div>
                 </>
               )}
             </div>
+            <div className='logout-btn-container'>
             <LogoutButton />
+            </div>
           </div>
         </div>
       </div>
