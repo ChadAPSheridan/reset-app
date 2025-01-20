@@ -4,8 +4,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: './src/index.tsx',
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'build'),
+    filename: 'static/js/bundle.js', // Update the filename to match the expected path
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
@@ -29,7 +29,7 @@ module.exports = {
     }),
   ],
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    contentBase: path.join(__dirname, 'build'),
     compress: true,
     port: 3000,
   },
