@@ -1,0 +1,31 @@
+{
+  "name": "my-nextjs-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run start --prefix frontend",
+    "backend": "cd backend && npm install",
+    "frontend": "cd frontend && npm install"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "concurrently": "^6.0.0",
+    "dotenv": "^16.4.7",
+    "mariadb": "^3.4.0",
+    "next": "^15.1.6",
+    "sequelize": "^6.37.5"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.0"
+  },
+  "resolutions": {
+    "glob": "^9.3.5",
+    "rimraf": "^4.4.1"
+  },
+  "overrides": {
+    "glob": "^9.3.5",
+    "rimraf": "^4.4.1"
+  }
+}
