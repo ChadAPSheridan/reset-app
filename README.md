@@ -15,30 +15,18 @@ Reset is a minimalist, Kanban-style project management tool designed for small p
 
 
 ## Tech Stack
-- **Frontend**: React, TypeScript, CSS
+- **Frontend**: Next.js, React, TypeScript, CSS
 - **Backend**: Express.js, MariaDB (with Sequelize ORM)
 - **Server**: Nginx
 
-## Project Structure
-```
-
-
 ## Setup Instructions
 1. Clone the repository.
-2. Navigate to the `backend` directory and run `npm install` to install backend dependencies.
-3. Navigate to the `frontend` directory and run `npm install` to install frontend dependencies.
-4. Configure the database connection in the backend.
-5. Start the backend server using `npm start` in the `backend` directory.
-6. Start the frontend application using `npm start` in the `frontend` directory.
-7. Access the application at `http://localhost:3000`. (If that port is unavailable, it will say in the console output.)
+2. Navigate to the `init` directory and run `node index.js`
+3. Follow the prompts to configure the database and install dependencies.
+4. Launch the dev environment from the root of the app with `npm run dev`
 
-### Configuration
-1. Configure the database connection in the backend:
-- Update the database configuration in [backend/src/config/database.ts](backend/src/config/database.ts) with your MariaDB credentials (note the password needs updated in 2 locations).
-2. Configure Nginx:
-- Update the Nginx configuration in [nginx/nginx.conf](nginx/nginx.conf) to point to the correct paths for your setup.
 
-## Deploying to NGINX server
+## Deploying to NGINX server (outdated, yymv)
 To deploy your application on an Nginx web server, follow these steps:
 
 1. Build the Frontend
@@ -70,7 +58,7 @@ Restart Nginx.
 Access the application.
 This setup ensures that Nginx serves the frontend and proxies API requests to the backend.
 
-
+#
 ## Contributing
 Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
 
