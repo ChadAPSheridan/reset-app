@@ -13,6 +13,12 @@ const Menu: React.FC = () => {
   const [isTasksExpanded, setIsTasksExpanded] = useState(false);
   const [isConfigExpanded, setIsConfigExpanded] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  interface Project {
+    id: string;
+    name: string;
+  }
+
+  const [projects, setProjects] = useState<Project[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,6 +32,17 @@ const Menu: React.FC = () => {
         console.error('Error parsing authUser from localStorage:', error);
       }
     }
+
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get('/api/projects');
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
   }, []);
 
   const toggleMenu = () => {
@@ -47,6 +64,10 @@ const Menu: React.FC = () => {
     } catch (error) {
       console.error('Network error:', error);
     }
+  };
+
+  const handleProjectClick = (projectId: string) => {
+    router.push(`/projects/${projectId}`);
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -107,6 +128,17 @@ const Menu: React.FC = () => {
                     {!isCollapsed && ' User Management'}
                   </a>
                 </li>
+                <li>
+                  <a onClick={() => handleNavigation('/projects')}>
+                    <FontAwesomeIcon icon={faCog} />
+                    {!isCollapsed && ' Projects'}
+                  </a>
+                </li>
+                {projects.map((project) => (
+                  <li key={project.id} onClick={() => handleProjectClick(project.id)}>
+                    {project.name}
+                  </li>
+                ))}
               </ul>
             )}
           </div>

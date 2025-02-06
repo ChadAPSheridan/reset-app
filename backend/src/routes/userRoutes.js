@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { authMiddleware } = require('./authRoutes');
+const { authenticate } = require('./authRoutes'); // Correctly import authenticate middleware
 const {
   getUserProfile,
   updateUserProfile,
@@ -45,11 +45,14 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/profile', authMiddleware, getUserProfile);
-router.put('/profile', authMiddleware, updateUserProfile);
-router.get('/', authMiddleware, getUsers);
-router.post('/', authMiddleware, createUser);
-router.put('/:userId', authMiddleware, updateUser);
-router.delete('/:userId', authMiddleware, deleteUser);
+// Get user profile
+router.get('/me', authenticate, getUserProfile);
+
+router.get('/profile', authenticate, getUserProfile);
+router.put('/profile', authenticate, updateUserProfile);
+router.get('/', authenticate, getUsers);
+router.post('/', authenticate, createUser);
+router.put('/:userId', authenticate, updateUser);
+router.delete('/:userId', authenticate, deleteUser);
 
 module.exports = router;

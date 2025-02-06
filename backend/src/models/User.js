@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const bcrypt = require('bcrypt');
+const Project = require('./Project'); // Import Project model
 
 const User = sequelize.define('User', {
   id: {
@@ -19,6 +20,7 @@ const User = sequelize.define('User', {
   username: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   password: {
     type: DataTypes.STRING,
@@ -47,5 +49,8 @@ const User = sequelize.define('User', {
     },
   },
 });
+
+User.belongsToMany(Project, { through: 'UserProjects' });
+Project.belongsToMany(User, { through: 'UserProjects' });
 
 module.exports = User;

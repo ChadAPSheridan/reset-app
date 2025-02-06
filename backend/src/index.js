@@ -6,7 +6,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
-const sequelize = require('./config/database'); // Import Sequelize instance
+const sequelize = require('./config/database');
 
 dotenv.config();
 
@@ -16,7 +16,6 @@ const io = socketIo(server);
 
 const logger = pino();
 
-// Update CORS configuration
 app.use(cors({
   origin: 'http://localhost:3001',
   credentials: true,
@@ -44,11 +43,13 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes').router;
 const taskRoutes = require('./routes/taskRoutes');
 const columnRoutes = require('./routes/columnRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/columns', columnRoutes);
+app.use('/api/projects', projectRoutes);
 
 // Socket.io setup
 io.on('connection', (socket) => {

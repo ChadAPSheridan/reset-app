@@ -1,5 +1,5 @@
 const express = require('express');
-const { authMiddleware } = require('./authRoutes');
+const { authenticate } = require('./authRoutes');
 const {
   getColumns,
   createColumn,
@@ -9,9 +9,9 @@ const {
 
 const router = express.Router();
 
-router.get('/', authMiddleware, getColumns);
-router.post('/', authMiddleware, createColumn);
-router.put('/:columnId', authMiddleware, updateColumn);
-router.delete('/:columnId', authMiddleware, deleteColumn);
+router.get('/', authenticate, getColumns);
+router.post('/', authenticate, createColumn);
+router.put('/:columnId', authenticate, updateColumn);
+router.delete('/:columnId', authenticate, deleteColumn);
 
 module.exports = router;

@@ -32,7 +32,26 @@ const login = async (req, res) => {
   });
 };
 
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log('Fetching user profile for user ID:', userId); // Log user ID
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      console.error('User not found for ID:', userId); // Log error
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Failed to fetch user profile:', error); // Log error
+    res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+};
+
 module.exports = {
+  getUserProfile,
   register,
   login,
 };

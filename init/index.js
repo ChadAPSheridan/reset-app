@@ -6,6 +6,7 @@ const crypto = require('crypto'); // Import crypto for generating JWT_SECRET
 require('dotenv').config({ path: '../backend/.env' });
 
 const { Sequelize } = require('sequelize'); // Import Sequelize
+const Project = require('../backend/src/models/Project'); // Import Project model
 const User = require('../backend/src/models/User'); // Import User model
 const Column = require('../backend/src/models/Column'); // Import Column model
 const Task = require('../backend/src/models/Task'); // Import Task model
@@ -309,6 +310,7 @@ const createAppTables = async (sequelizeApp) => {
   displayHeader('CREATING APP TABLES');
   try {
     // Register models with the new Sequelize instance
+    Project.init(Project.getAttributes(), { sequelize: sequelizeApp });
     User.init(User.getAttributes(), { sequelize: sequelizeApp });
     Column.init(Column.getAttributes(), { sequelize: sequelizeApp });
     Task.init(Task.getAttributes(), { sequelize: sequelizeApp });
