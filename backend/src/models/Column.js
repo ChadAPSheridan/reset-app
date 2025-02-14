@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const Project = require('./Project');
+const sequelize = require('../config/database'); // Correct import
 
 const Column = sequelize.define('Column', {
   id: {
@@ -19,14 +18,6 @@ const Column = sequelize.define('Column', {
   position: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  },
-  projectId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Project,
-      key: 'id',
-    },
   },
 });
 

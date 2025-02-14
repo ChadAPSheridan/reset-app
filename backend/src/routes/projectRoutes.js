@@ -1,61 +1,50 @@
 const express = require('express');
-const Project = require('../models/Project');
-const User = require('../models/User');
-const checkAdmin = require('../middleware/checkAdmin');
-const checkProjectAccess = require('../middleware/auth');
 const projectController = require('../controllers/projectController');
+const { authenticate, checkProjectAccess } = require('../middleware/auth');
+const checkAdmin = require('../middleware/checkAdmin');
 
 const router = express.Router();
 
 // Get all projects
-router.get('/', async (req, res) => {
-    try {
-      const projects = await Project.findAll();
-      res.status(200).json(projects);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch projects' });
-    }
-  });
+router.get('/', authenticate, (req, res, next) => {
+  console.log('Get all projects route called');
+  next();
+}, projectController.getProjects);
+
 // Create a new project
-router.post('/', checkAdmin, async (req, res) => {
-  try {
-    const { name, description } = req.body;
-    const project = await Project.create({ name, description });
-    res.status(201).json(project);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create project' });
-  }
-});
+router.post('/', authenticate, checkAdmin, (req, res, next) => {
+  console.log('Create project route called with body:', req.body);
+  next();
+}, projectController.createProject);
 
 // Delete a project
-router.delete('/:id', checkAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Project.destroy({ where: { id } });
-    res.status(204).end();
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete project' });
-  }
-});
+router.delete('/:id', authenticate, checkAdmin, (req, res, next) => {
+  console.log('Delete project route called with id:', req.params.id);
+  next();
+}, projectController.deleteProject);
 
 // Assign a user to a project
-router.post('/:id/users', checkAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { userId } = req.body;
-    const project = await Project.findByPk(id);
-    const user = await User.findByPk(userId);
-    await project.addUser(user);
-    res.status(200).json({ message: 'User assigned to project' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to assign user to project' });
-  }
-});
+router.post('/:id/users', authenticate, checkAdmin, (req, res, next) => {
+  console.log('Assign user to project route called with id:', req.params.id, 'and body:', req.body);
+  next();
+}, projectController.assignUserToProject);
 
-router.post('/projects', projectController.createProject);
-router.get('/projects', projectController.getProjects);
-router.get('/projects/:id', checkProjectAccess, projectController.getProject);
-router.put('/projects/:id', checkProjectAccess, projectController.updateProject);
-router.delete('/projects/:id', checkProjectAccess, projectController.deleteProject);
+// Remove a user from a project
+router.delete('/:id/users/:userId', authenticate, checkAdmin, (req, res, next) => {
+  console.log('Remove user from project route called with id:', req.params.id, 'and userId:', req.params.userId);
+  next();
+}, projectController.removeUserFromProject);
+
+// Get a single project
+router.get('/:id', authenticate, checkProjectAccess, (req, res, next) => {
+  console.log('Get project route called with id:', req.params.id);
+  next();
+}, projectController.getProject);
+
+// Update a project
+router.put('/:id', authenticate, checkProjectAccess, (req, res, next) => {
+  console.log('Update project route called with id:', req.params.id, 'and body:', req.body);
+  next();
+}, projectController.updateProject);
 
 module.exports = router;

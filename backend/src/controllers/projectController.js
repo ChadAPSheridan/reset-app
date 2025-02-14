@@ -1,7 +1,7 @@
 const Project = require('../models/Project');
 const User = require('../models/User');
 
-exports.createProject = async (req, res) => {
+const createProject = async (req, res) => {
   try {
     const project = await Project.create(req.body);
     res.status(201).json(project);
@@ -10,7 +10,7 @@ exports.createProject = async (req, res) => {
   }
 };
 
-exports.getProjects = async (req, res) => {
+const getProjects = async (req, res) => {
   try {
     const projects = await Project.findAll();
     res.status(200).json(projects);
@@ -19,7 +19,7 @@ exports.getProjects = async (req, res) => {
   }
 };
 
-exports.getProject = async (req, res) => {
+const getProject = async (req, res) => {
   try {
     const project = await Project.findByPk(req.params.id, {
       include: [User],
@@ -33,7 +33,7 @@ exports.getProject = async (req, res) => {
   }
 };
 
-exports.updateProject = async (req, res) => {
+const updateProject = async (req, res) => {
   try {
     const project = await Project.findByPk(req.params.id);
     if (!project) {
@@ -46,7 +46,7 @@ exports.updateProject = async (req, res) => {
   }
 };
 
-exports.deleteProject = async (req, res) => {
+const deleteProject = async (req, res) => {
   try {
     const project = await Project.findByPk(req.params.id);
     if (!project) {
@@ -57,4 +57,39 @@ exports.deleteProject = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+};
+
+const assignUserToProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+    const project = await Project.findByPk(id);
+    const user = await User.findByPk(userId);
+    await project.addUser(user);
+    res.status(200).json({ message: 'User assigned to project' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to assign user to project' });
+  }
+};
+
+const removeUserFromProject = async (req, res) => {
+  try {
+    const { id, userId } = req.params;
+    const project = await Project.findByPk(id);
+    const user = await User.findByPk(userId);
+    await project.removeUser(user);
+    res.status(200).json({ message: 'User removed from project' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to remove user from project' });
+  }
+};
+
+module.exports = {
+  createProject,
+  getProjects,
+  getProject,
+  updateProject,
+  deleteProject,
+  assignUserToProject,
+  removeUserFromProject,
 };

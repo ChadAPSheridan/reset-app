@@ -1,4 +1,4 @@
-// This file exports a React component that renders a navigation menu for the frontend application.
+import '../axiosSetup'; // Import the Axios setup
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTasks, faCog, faSignOutAlt, faChevronDown, faChevronUp, faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import LogoutButton from './LogoutButton';
-import axios from 'axios';
+import axiosInstance from '../axiosSetup'; // Import the Axios instance
 
 const Menu: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -24,7 +24,6 @@ const Menu: React.FC = () => {
   useEffect(() => {
     const authUserString = localStorage.getItem('authUser');
     if (authUserString) {
-      console.log('authUserString:', authUserString);
       try {
         const authUser = JSON.parse(authUserString);
         setCurrentUser(authUser);
@@ -35,7 +34,13 @@ const Menu: React.FC = () => {
 
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('/api/projects');
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          throw new Error('No auth token found');
+        } else {
+          console.log('Token Found!!!:', token);
+        }
+        const response = await axiosInstance.get('/projects');
         setProjects(response.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -59,7 +64,7 @@ const Menu: React.FC = () => {
 
   const handleNavigation = async (url: string) => {
     try {
-      await axios.get(url);
+      await axiosInstance.get(url);
       router.push(url);
     } catch (error) {
       console.error('Network error:', error);

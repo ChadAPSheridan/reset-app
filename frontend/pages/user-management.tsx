@@ -1,8 +1,10 @@
+import '../axiosSetup'; 
 import React, { useState, useEffect } from 'react';
 import { getUsers, createUser, updateUser, deleteUser } from '../services/apiService';
 import Dialog from '../components/Dialog';
 import Button from '../components/Button';
 import { faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+import axiosInstance from '../axiosSetup';
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);

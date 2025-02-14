@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../axiosSetup';
 
 const ProjectList = () => {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
     const fetchProjects = async () => {
-      const response = await axios.get('/api/projects');
+      const response = await axiosInstance.get('/api/projects');
       setProjects(response.data);
     };
     fetchProjects();

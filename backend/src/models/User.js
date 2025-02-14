@@ -1,7 +1,9 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/database'); // Correct import
+
 const bcrypt = require('bcrypt');
-const Project = require('./Project'); // Import Project model
+
+console.log('Sequelize instance imported in User model:', sequelize); // Debugging output
 
 const User = sequelize.define('User', {
   id: {
@@ -33,14 +35,12 @@ const User = sequelize.define('User', {
   },
 }, {
   hooks: {
-    // Hash the password before creating a new user
     beforeCreate: async (user) => {
       if (user.password) {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
       }
     },
-    // Hash the password before updating an existing user
     beforeUpdate: async (user) => {
       if (user.password) {
         const salt = await bcrypt.genSalt(10);
@@ -49,8 +49,5 @@ const User = sequelize.define('User', {
     },
   },
 });
-
-User.belongsToMany(Project, { through: 'UserProjects' });
-Project.belongsToMany(User, { through: 'UserProjects' });
 
 module.exports = User;

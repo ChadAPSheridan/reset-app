@@ -22,8 +22,14 @@ const checkProjectAccess = async (req, res, next) => {
     res.status(403).json({ error: 'Access denied' });
   }
 };
+
 const authenticate = async (req, res, next) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
+  const authHeader = req.header('Authorization');
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Authorization header missing' });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -39,4 +45,5 @@ const authenticate = async (req, res, next) => {
     res.status(401).json({ error: 'Please authenticate.' });
   }
 };
-module.exports = checkProjectAccess, authenticate;
+
+module.exports = { checkProjectAccess, authenticate };

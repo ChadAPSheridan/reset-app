@@ -1,20 +1,14 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Correct import
 
-const Project = sequelize.define('Project', {
+const UserProjects = sequelize.define('UserProjects', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-  },
+}, {
+  timestamps: false,
 });
 
-module.exports = Project;
+module.exports = UserProjects;

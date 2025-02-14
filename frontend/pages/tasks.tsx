@@ -1,3 +1,4 @@
+import '../axiosSetup'; 
 import React, { useState, useEffect } from 'react';
 import { getTasks, createTask, updateTask, deleteTask, getColumns, createColumn, updateColumn, deleteColumn, getUsers } from '../services/apiService';
 import { Column, Task } from '../types';
@@ -5,6 +6,7 @@ import Dialog from '../components/Dialog';
 import Button from '../components/Button';
 import CustomDropdown from '../components/CustomDropdown';
 import { faPlus, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
+import axiosInstance from '../axiosSetup';
 
 const TaskBoard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -30,7 +32,7 @@ const TaskBoard: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [editTaskUserId, setEditTaskUserId] = useState<number | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
-
+//region useEffect
   useEffect(() => {
     const fetchData = async () => {
       const tasksData = await getTasks();
@@ -62,7 +64,8 @@ const TaskBoard: React.FC = () => {
       setEditTaskUserId(taskToEdit.userId || null);
     }
   }, [taskToEdit]);
-
+//endregion useEffect
+//region dragHandlers
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: number, type: 'task' | 'column') => {
     e.stopPropagation();
     e.dataTransfer.setData('id', id.toString());
@@ -187,7 +190,7 @@ const TaskBoard: React.FC = () => {
       setMoveTasksToColumnId('disabled');
     }
   };
-
+//endregion dragHandlers
   const handleDoubleClick = (task: Task) => {
     setTaskToEdit(task);
     setEditTaskTitle(task.title);
@@ -315,10 +318,10 @@ const TaskBoard: React.FC = () => {
   };
 
   return (
-    <div className="task-board">
-      <div className="task-board-header">
+    <div className="board-content">
+      <div className="board-header">
         <div className="breadcrumb-title">Task Board</div>
-        <div className="task-board-buttons">
+        <div className="board-header-buttons">
           <Button onClick={() => setIsTaskDialogOpen(true)} icon={faPlus}>
             Add Task
           </Button>
