@@ -9,7 +9,15 @@ export interface Task {
   id: number;
   title: string;
   description: string;
-  columnId: number;
+  ColumnId: number;
   row: number; // Add row property
   userId?: number | null; // Add userId property
+}
+
+export interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  permissionLevel: 'user' | 'admin'; // Add permissionLevel property
 }

@@ -40,7 +40,7 @@ const Menu: React.FC = () => {
         } else {
           console.log('Token Found!!!:', token);
         }
-        const response = await axiosInstance.get('/projects');
+        const response = await axiosInstance.get('/api/projects');
         setProjects(response.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -64,15 +64,15 @@ const Menu: React.FC = () => {
 
   const handleNavigation = async (url: string) => {
     try {
-      await axiosInstance.get(url);
+      // await axiosInstance.get(url);
       router.push(url);
     } catch (error) {
       console.error('Network error:', error);
     }
   };
 
-  const handleProjectClick = (projectId: string) => {
-    router.push(`/projects/${projectId}`);
+  const handleProjectClick = (projectId: string, projectName: string) => {
+    router.push(`/tasks?projectId=${projectId}&projectName=${projectName}`);
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -98,12 +98,11 @@ const Menu: React.FC = () => {
             </h2>
             {isTasksExpanded && (
               <ul>
-                <li>
-                  <a onClick={() => handleNavigation('/tasks')}>
-                    <FontAwesomeIcon icon={faTasks} />
-                    {!isCollapsed && ' Go to Task Board'}
-                  </a>
-                </li>
+                {projects.map((project) => (
+                  <li key={project.id} onClick={() => handleProjectClick(project.id, project.name)}>
+                    {project.name}
+                  </li>
+                ))}
               </ul>
             )}
             {isCollapsed && (
@@ -139,11 +138,6 @@ const Menu: React.FC = () => {
                     {!isCollapsed && ' Projects'}
                   </a>
                 </li>
-                {projects.map((project) => (
-                  <li key={project.id} onClick={() => handleProjectClick(project.id)}>
-                    {project.name}
-                  </li>
-                ))}
               </ul>
             )}
           </div>

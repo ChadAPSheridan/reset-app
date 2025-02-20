@@ -29,8 +29,10 @@ const ProjectsPage = () => {
       const authUserString = localStorage.getItem('authUser');
       if (authUserString) {
         const authUser = JSON.parse(authUserString);
+        console.log('authUser:', authUser);
         try {
-          const response = await axiosInstance.get('/api/auth/me');
+          const response = await axiosInstance.get('/auth/me');
+          console.log('User:', response.data);
           setIsAdmin(response.data.permissionLevel === 'admin');
         } catch (error) {
           console.error('Error fetching user:', error);
@@ -42,7 +44,7 @@ const ProjectsPage = () => {
 
     const fetchProjects = async () => {
       try {
-        const response = await axiosInstance.get('/api/projects');
+        const response = await axiosInstance.get('/projects');
         setProjects(response.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -70,7 +72,7 @@ const ProjectsPage = () => {
   const handleCreateProject = async () => {
     try {
       if (newProjectTitle && newProjectDescription) {
-        const response = await axiosInstance.post('/api/projects', {
+        const response = await axiosInstance.post('/projects', {
           name: newProjectTitle,
           description: newProjectDescription,
           users: newProjectUsers,
@@ -86,7 +88,7 @@ const ProjectsPage = () => {
 
   const handleDeleteProject = async (projectId: string) => {
     try {
-      await axiosInstance.delete(`/api/projects/${projectId}`);
+      await axiosInstance.delete(`/projects/${projectId}`);
       setProjects(projects.filter((project) => project.id !== projectId));
     } catch (error) {
       console.error('Failed to delete project:', error);
@@ -95,7 +97,7 @@ const ProjectsPage = () => {
 
   const handleAssignUser = async (projectId: string, userId: string) => {
     try {
-      await axiosInstance.post(`/api/projects/${projectId}/users`, { userId });
+      await axiosInstance.post(`/projects/${projectId}/users`, { userId });
       alert('User assigned to project successfully');
     } catch (error) {
       console.error('Failed to assign user to project:', error);
@@ -104,7 +106,7 @@ const ProjectsPage = () => {
   
   const handleRemoveUser = async (projectId: string, userId: string) => {
     try {
-      await axiosInstance.delete(`/api/projects/${projectId}/users/${userId}`);
+      await axiosInstance.delete(`/projects/${projectId}/users/${userId}`);
       alert('User removed from project successfully');
     } catch (error) {
       console.error('Failed to remove user from project:', error);

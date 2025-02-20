@@ -13,6 +13,7 @@ const createProject = async (req, res) => {
 const getProjects = async (req, res) => {
   try {
     const projects = await Project.findAll();
+    console.log('Projects:', projects);
     res.status(200).json(projects);
   } catch (error) {
     res.status(400).json({ error: error.message });

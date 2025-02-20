@@ -58,7 +58,15 @@ router.get('/me', authenticate, getUserProfile);
 
 router.get('/profile', authenticate, getUserProfile);
 router.put('/profile', authenticate, updateUserProfile);
-router.get('/', authenticate, getUsers);
+router.get('/', authenticate, async (req, res) => {
+  console.log('GET /api/users route called');
+  try {
+    const users = await getUsers(req, res);
+    console.log('Users fetched:', users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  }
+});
 router.post('/', authenticate, createUser);
 router.put('/:userId', authenticate, updateUser);
 router.delete('/:userId', authenticate, deleteUser);

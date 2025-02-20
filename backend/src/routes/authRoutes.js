@@ -9,16 +9,22 @@ const router = express.Router();
 // Middleware to protect routes
 const authenticate = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'Unauthorized' });
+  if (!token) {
+    console.log('No token found');
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.userId);
+    console.log('Token decoded:', decoded);
+    const user = await User.findByPk(decoded.id);
     if (!user) {
+      console.log('User not found for token:', decoded);
       return res.status(401).json({ message: 'Unauthorized' });
     }
     req.user = user;
     next();
   } catch (error) {
+    console.log('Token verification failed:', error);
     res.status(401).json({ message: 'Unauthorized' });
   }
 };

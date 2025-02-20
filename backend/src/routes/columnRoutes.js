@@ -9,7 +9,7 @@ const {
 
 const router = express.Router();
 
-router.get('/', authenticate, getColumns);
+router.get('/:projectId', authenticate, getColumns);
 router.post('/', authenticate, createColumn);
 router.put('/:columnId', authenticate, updateColumn);
 router.delete('/:columnId', authenticate, deleteColumn);

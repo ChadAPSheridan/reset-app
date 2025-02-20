@@ -2,9 +2,12 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Correct import
 
 const UserProjects = sequelize.define('UserProjects', {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
+  UserId: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+  },
+  ProjectId: {
+    type: DataTypes.UUID,
     primaryKey: true,
   },
 }, {

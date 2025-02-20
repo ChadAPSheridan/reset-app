@@ -14,7 +14,8 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.post('/auth/login', { username, password });
+      console.log('Sending login request with:', { username, password });
+      const response = await axiosInstance.post('/api/auth/login', { username, password });
       const { token, user } = response.data;
       console.log('Response:', response.data);
       console.log('Login successful:', user);

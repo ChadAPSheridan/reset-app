@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Correct import
+const { v4: uuidv4 } = require('uuid'); // Import UUID
 
 const bcrypt = require('bcrypt');
 
@@ -7,8 +8,8 @@ console.log('Sequelize instance imported in User model:', sequelize); // Debuggi
 
 const User = sequelize.define('User', {
   id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
+    type: DataTypes.UUID,
+    defaultValue: uuidv4,
     primaryKey: true,
   },
   firstName: {

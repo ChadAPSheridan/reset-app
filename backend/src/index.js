@@ -51,11 +51,21 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/columns', columnRoutes);
 app.use('/api/projects', projectRoutes);
 
+console.log('Routes initialized');
+
+// Middleware to log route and method
+app.use((req, res, next) => {
+  console.log(`Route called: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Socket.io setup
 io.on('connection', (socket) => {
   logger.info('New client connected');
+  console.log('New client connected');
   socket.on('disconnect', () => {
     logger.info('Client disconnected');
+    console.log('Client disconnected');
   });
 });
 
@@ -64,7 +74,9 @@ sequelize.sync().then(() => {
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 }).catch(err => {
   logger.error('Unable to connect to the database:', err);
+  console.error('Unable to connect to the database:', err);
 });

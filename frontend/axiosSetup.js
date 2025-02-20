@@ -4,7 +4,7 @@ console.log('axiosSetup.js loaded');
 
 // Create an Axios instance with configuration
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
   withCredentials: true, // Include credentials in requests
   headers: {
     'Content-Type': 'application/json',
@@ -18,11 +18,11 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('Authorization header set:', config.headers.Authorization);
+      // console.log('Authorization header set:', config.headers.Authorization);
     } else {
       console.log('No token found in localStorage');
     }
-    console.log('Axios interceptor called with config:', config);
+    // console.log('Axios interceptor called with config:', config);
     return config;
   },
   (error) => {
