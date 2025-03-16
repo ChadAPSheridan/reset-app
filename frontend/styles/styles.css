@@ -297,35 +297,6 @@ body {
   height: 30px;
   margin: -5px 10px;
 }
-.task-form {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.task-form input,
-.task-form select,
-.task-form button {
-  padding: 10px;
-  margin-right: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.task-form button {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-}
-
-.task-form button:hover {
-  background-color: #0056b3;
-}
 
 .task-columns {
   display: flex;
@@ -439,11 +410,11 @@ body {
 .dialog input,
 .dialog select,
 .dialog .dialog-input,
+.dialog textarea,
 .dialog .dialog-select {
   display: block;
   width: 100%;
   padding: 10px;
-  margin-bottom: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
 }
@@ -513,7 +484,6 @@ body {
   position: relative;
   display: flex;
   width: 45%;
-  margin-left: 5px;
 }
 
 .custom-dropdown-selected {
@@ -527,6 +497,7 @@ body {
   background-position: right 10px center;
   background-size: 10px;
   width: 100%;
+  text-wrap-mode: nowrap;
 }
 
 .custom-dropdown-options {
@@ -841,4 +812,20 @@ body {
 .user-select input {
   margin: 10px;
   width: auto;
+}
+.assigned-to {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 60%;
+  align-items: center;
+  gap: 1px;
+  /* box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); */
+}
+.task-assignment {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }

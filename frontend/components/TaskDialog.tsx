@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CustomDropdown from './CustomDropdown';
 import Dialog from './Dialog';
+import Button from './Button';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 interface TaskDialogProps {
   isOpen: boolean;
@@ -17,6 +19,11 @@ interface TaskDialogProps {
   columns: { value: string; label: string }[];
   selectedColumnId: string;
   setSelectedColumnId: (value: string) => void;
+  users: { id: string; firstName: string; lastName: string }[];
+  editTaskUserId: string;
+  setEditTaskUserId: (value: string) => void;
+  currentUser?: any;
+  openDeleteTaskDialog?: () => void;
 }
 
 const TaskDialog: React.FC<TaskDialogProps> = ({
@@ -34,17 +41,32 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   columns,
   selectedColumnId,
   setSelectedColumnId,
+  users,
+  editTaskUserId,
+  setEditTaskUserId,
+  currentUser,
+  openDeleteTaskDialog,
 }) => {
   const [newTaskColumnId, setNewTaskColumnId] = useState<string>(selectedColumnId);
+  const initialAssignedUserRef = useRef<{ firstName: string; lastName: string }>({ firstName: 'Unassigned', lastName: '' });
 
   useEffect(() => {
     setNewTaskColumnId(selectedColumnId);
   }, [selectedColumnId]);
 
+  useEffect(() => {
+    if (isOpen) {
+      const assignedUser = users.find(user => user.id === editTaskUserId) || { firstName: 'Unassigned', lastName: '' };
+      initialAssignedUserRef.current = assignedUser;
+    }
+  }, [isOpen, editTaskUserId, users]);
+
   const handleColumnChange = (value: string) => {
     setNewTaskColumnId(value);
     setSelectedColumnId(value);
   };
+
+  const assignedUser = users.find(user => user.id === editTaskUserId) || { id: null, firstName: 'Unassigned', lastName: '' };
 
   return (
     <Dialog
@@ -73,6 +95,38 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
         value={newTaskColumnId}
         onChange={handleColumnChange}
       />
+      {users && setEditTaskUserId && (
+        <>
+          <div className='task-assignment'>
+            <div className='assigned-to'>
+              <p>Assigned to: </p>
+              <p>{`${initialAssignedUserRef.current.firstName} ${initialAssignedUserRef.current.lastName}`}</p>
+            </div>
+            {currentUser?.permissionLevel === 'user' && assignedUser.id !== currentUser.id && (
+              <Button
+                onClick={() => {
+                  setEditTaskUserId(currentUser.id);
+                }}
+                className="assign-btn"
+              >
+                Assign To Me
+              </Button>
+            )}
+            {currentUser?.permissionLevel === 'admin' && (
+              <CustomDropdown
+                options={users.map(user => ({ value: user.id, label: `${user.firstName} ${user.lastName}` }))}
+                value={editTaskUserId}
+                onChange={(value) => setEditTaskUserId(value)}
+              />
+            )}
+          </div>
+        </>
+      )}
+      {openDeleteTaskDialog && (
+        <Button onClick={() => openDeleteTaskDialog()} icon={faTrash} className="delete-btn dialog-delete-btn">
+          Delete Task
+        </Button>
+      )}
     </Dialog>
   );
 };
