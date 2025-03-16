@@ -18,15 +18,15 @@ const TaskBoard: React.FC = () => {
   const [columns, setColumns] = useState<Column[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
-  const [newTaskColumnId, setNewTaskColumnId] = useState<number>(1);
+  const [newTaskColumnId, setNewTaskColumnId] = useState<string>('');
   const [newColumnTitle, setNewColumnTitle] = useState('');
   const [newColumnDescription, setNewColumnDescription] = useState('');
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [isColumnDialogOpen, setIsColumnDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [columnToDelete, setColumnToDelete] = useState<number | null>(null);
+  const [columnToDelete, setColumnToDelete] = useState<string>('');
   const [moveTasksToColumnId, setMoveTasksToColumnId] = useState<string | 'disabled'>('disabled');
-  const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
   const [editTaskTitle, setEditTaskTitle] = useState('');
@@ -35,7 +35,7 @@ const TaskBoard: React.FC = () => {
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [users, setUsers] = useState<any[]>([]);
-  const [editTaskUserId, setEditTaskUserId] = useState<number | null>(null);
+  const [editTaskUserId, setEditTaskUserId] = useState<string>('');
   const [currentUser, setCurrentUser] = useState<any>(null);
   // const [projectName, setProjectName] = useState<string>(''); // Add state for project name
   const router = useRouter();
@@ -46,10 +46,10 @@ const TaskBoard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (projectId) {
-        const tasksData = await getTasks(projectId);
-        setTasks(tasksData.data);
         const columnsData = await getColumns(projectId);
         setColumns(columnsData.data);
+        const tasksData = await getTasks(projectId);
+        setTasks(tasksData.data);
       }
     };
     fetchData();
@@ -73,20 +73,20 @@ const TaskBoard: React.FC = () => {
 
   useEffect(() => {
     if (taskToEdit) {
-      setEditTaskUserId(taskToEdit.userId || null);
+      setEditTaskUserId(taskToEdit.userId || '');
     }
   }, [taskToEdit]);
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: number, type: 'task' | 'column') => {
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string, type: 'task' | 'column') => {
     e.stopPropagation();
     e.dataTransfer.setData('id', id.toString());
     e.dataTransfer.setData('type', type);
   };
 
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, ColumnId: number, targetRow?: number) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, ColumnId: string, targetRow?: number) => {
     e.preventDefault();
     e.stopPropagation();
-    const id = parseInt(e.dataTransfer.getData('id'));
+    const id = e.dataTransfer.getData('id');
     const type = e.dataTransfer.getData('type');
 
     if (type === 'task') {
@@ -134,11 +134,27 @@ const TaskBoard: React.FC = () => {
   };
 
   const handleAddTask = async () => {
-    const newTask = await createTask({ title: newTaskTitle, description: newTaskDescription, ColumnId: newTaskColumnId, ProjectId: projectId });
-    setTasks([...tasks, newTask.data]);
-    setNewTaskTitle('');
-    setNewTaskDescription('');
-    setIsTaskDialogOpen(false);
+    // Check if the ColumnId exists
+    const columnExists = columns.some(column => column.id === newTaskColumnId);
+    if (!columnExists) {
+      console.error('Column does not exist:', newTaskColumnId);
+      return;
+    }
+
+    try {
+      const newTask = await createTask({
+        title: newTaskTitle,
+        description: newTaskDescription,
+        ColumnId: newTaskColumnId,
+        ProjectId: projectId
+      });
+      setTasks([...tasks, newTask.data]);
+      setNewTaskTitle('');
+      setNewTaskDescription('');
+      setIsTaskDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
   };
 
   const handleAddColumn = async () => {
@@ -157,7 +173,7 @@ const TaskBoard: React.FC = () => {
         return;
       }
       if (moveTasksToColumnId !== 'disabled') {
-        const targetColumnId = parseInt(moveTasksToColumnId, 10);
+        const targetColumnId = moveTasksToColumnId;
         const tasksToMove = tasks.filter(task => task.ColumnId === columnToDelete);
 
         const highestRow = tasks
@@ -195,7 +211,7 @@ const TaskBoard: React.FC = () => {
     setIsEditTaskDialogOpen(true);
   };
 
-  const toggleTaskExpansion = (taskId: number) => {
+  const toggleTaskExpansion = (taskId: string) => {
     setExpandedTaskId(expandedTaskId === taskId ? null : taskId);
   };
 
@@ -208,7 +224,7 @@ const TaskBoard: React.FC = () => {
         column={column}
         tasks={tasks}
         users={users}
-        expandedTaskId={expandedTaskId}
+        expandedTaskId={expandedTaskId || ''}
         handleDragStart={handleDragStart}
         handleDrop={handleDrop}
         handleDragOver={handleDragOver}
@@ -309,7 +325,7 @@ const TaskBoard: React.FC = () => {
         setTaskDescription={setNewTaskDescription}
         columns={columns.map(column => ({ value: column.id.toString(), label: column.title }))}
         selectedColumnId={newTaskColumnId.toString()}
-        setSelectedColumnId={(value) => setNewTaskColumnId(parseInt(value))}
+        setSelectedColumnId={(value) => setNewTaskColumnId(value)}
       />
 
       <ColumnDialog
@@ -382,7 +398,7 @@ const TaskBoard: React.FC = () => {
           <CustomDropdown
             options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
             value={editTaskUserId?.toString() || ''}
-            onChange={(value) => setEditTaskUserId(parseInt(value))}
+            onChange={(value) => setEditTaskUserId(value)}
             disabled={currentUser?.permissionLevel !== 'admin'}
           />
         ) : (
@@ -402,7 +418,7 @@ const TaskBoard: React.FC = () => {
               <CustomDropdown
                 options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
                 value={editTaskUserId?.toString() || ''}
-                onChange={(value) => setEditTaskUserId(parseInt(value))}
+                onChange={(value) => setEditTaskUserId(value)}
               />
             )}
           </>

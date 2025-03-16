@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface CustomDropdownProps {
   options: { value: string; label: string }[];
@@ -9,8 +9,15 @@ interface CustomDropdownProps {
 
 const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChange, disabled }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(value);
+
+  useEffect(() => {
+    setSelectedValue(value);
+  }, [value]);
 
   const handleOptionClick = (value: string) => {
+    console.log('Option clicked:', value); // Debugging log
+    setSelectedValue(value);
     onChange(value);
     setIsOpen(false);
   };
@@ -21,7 +28,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
         className="custom-dropdown-selected"
         onClick={() => !disabled && setIsOpen(!isOpen)}
       >
-        {options.find(option => option.value === value)?.label}
+        {options.find(option => option.value === selectedValue)?.label || 'Select one...'}
       </div>
       {isOpen && (
         <div className="custom-dropdown-options">

@@ -8,13 +8,13 @@ interface ColumnProps {
   column: Column;
   tasks: Task[];
   users: User[];
-  expandedTaskId: number | null;
-  handleDragStart: (e: React.DragEvent<HTMLDivElement>, id: number, type: 'task' | 'column') => void;
-  handleDrop: (e: React.DragEvent<HTMLDivElement>, columnId: number, targetRow?: number) => void;
+  expandedTaskId: string | '';
+  handleDragStart: (e: React.DragEvent<HTMLDivElement>, id: string, type: 'task' | 'column') => void;
+  handleDrop: (e: React.DragEvent<HTMLDivElement>, columnId: string, targetRow?: number) => void;
   handleDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   handleDoubleClick: (task: Task) => void;
-  toggleTaskExpansion: (taskId: number) => void;
-  setColumnToDelete: (columnId: number) => void;
+  toggleTaskExpansion: (taskId: string) => void;
+  setColumnToDelete: (columnId: string) => void;
   setIsDeleteDialogOpen: (isOpen: boolean) => void;
 }
 

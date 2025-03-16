@@ -1,5 +1,4 @@
-import React from 'react';
-import Dialog from './Dialog';
+import React, { useState, useEffect } from 'react';
 import CustomDropdown from './CustomDropdown';
 
 interface TaskDialogProps {
@@ -16,7 +15,7 @@ interface TaskDialogProps {
   setTaskDescription: (description: string) => void;
   columns: { value: string; label: string }[];
   selectedColumnId: string;
-  setSelectedColumnId: (ColumnId: string) => void;
+  setSelectedColumnId: (value: string) => void;
 }
 
 const TaskDialog: React.FC<TaskDialogProps> = ({
@@ -35,35 +34,50 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   selectedColumnId,
   setSelectedColumnId,
 }) => {
+  const [newTaskColumnId, setNewTaskColumnId] = useState<string>(selectedColumnId);
+
+  useEffect(() => {
+    setNewTaskColumnId(selectedColumnId);
+    console.log('New task column in useEffect:', newTaskColumnId); // Debugging log
+  }, [selectedColumnId]);
+
+  const handleColumnChange = (value: string) => {
+    console.log('Value:', value); // Debugging log
+    setNewTaskColumnId(value);
+    console.log('New task column:', newTaskColumnId); // Debugging log
+    setSelectedColumnId(value);
+    console.log('Selected column:', selectedColumnId); // Debugging log
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <Dialog
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      submitLabel={submitLabel}
-      onSubmit={onSubmit}
-      cancelLabel={cancelLabel}
-      onCancel={onCancel}
-    >
-      <input
-        type="text"
-        value={taskTitle}
-        onChange={(e) => setTaskTitle(e.target.value)}
-        placeholder="Task title"
-      />
-      <textarea
-        value={taskDescription}
-        onChange={(e) => setTaskDescription(e.target.value)}
-        placeholder="Task description"
-        rows={3}
-        className="description-textarea"
-      />
-      <CustomDropdown
-        options={columns}
-        value={selectedColumnId}
-        onChange={(value) => setSelectedColumnId(value)}
-      />
-    </Dialog>
+    <div className="dialog">
+      <div className="dialog-content">
+        <h2>{title}</h2>
+        <input
+          type="text"
+          value={taskTitle}
+          onChange={(e) => setTaskTitle(e.target.value)}
+          placeholder="Task title"
+        />
+        <textarea
+          value={taskDescription}
+          onChange={(e) => setTaskDescription(e.target.value)}
+          placeholder="Task description"
+          rows={3}
+        />
+        <CustomDropdown
+          options={columns}
+          value={newTaskColumnId}
+          onChange={handleColumnChange}
+        />
+        <div className="dialog-actions">
+          <button onClick={onSubmit}>{submitLabel}</button>
+          <button onClick={onCancel}>{cancelLabel}</button>
+        </div>
+      </div>
+    </div>
   );
 };
 

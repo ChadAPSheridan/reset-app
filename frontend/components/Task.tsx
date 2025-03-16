@@ -4,12 +4,12 @@ import { Task, User } from '../types';
 interface TaskProps {
   task: Task;
   users: User[];
-  expandedTaskId: number | null;
-  handleDragStart: (e: React.DragEvent<HTMLDivElement>, id: number, type: 'task' | 'column') => void;
-  handleDrop: (e: React.DragEvent<HTMLDivElement>, ColumnId: number, targetRow?: number) => void;
+  expandedTaskId: string | '';
+  handleDragStart: (e: React.DragEvent<HTMLDivElement>, id: string, type: 'task' | 'column') => void;
+  handleDrop: (e: React.DragEvent<HTMLDivElement>, ColumnId: string, targetRow?: number) => void;
   handleDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   handleDoubleClick: (task: Task) => void;
-  toggleTaskExpansion: (taskId: number) => void;
+  toggleTaskExpansion: (taskId: string) => void;
 }
 
 const TaskComponent: React.FC<TaskProps> = ({

@@ -31,4 +31,15 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      alert('Session expired or access denied. Redirecting to login page.');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default axiosInstance;

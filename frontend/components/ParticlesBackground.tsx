@@ -37,7 +37,7 @@ const ParticlesBackground = () => {
           value: "#45BDEE",
         },
       },
-      fpsLimit: 120,
+      fpsLimit: 30,
       interactivity: {
         events: {
           onClick: {

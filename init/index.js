@@ -313,8 +313,8 @@ const createAppTables = async (sequelizeApp) => {
   displayHeader('CREATING APP TABLES');
   try {
     // Register models with the new Sequelize instance
-    Project.init(Project.getAttributes(), { sequelize: sequelizeApp });
     User.init(User.getAttributes(), { sequelize: sequelizeApp });
+    Project.init(Project.getAttributes(), { sequelize: sequelizeApp });
     Column.init(Column.getAttributes(), { sequelize: sequelizeApp });
     Task.init(Task.getAttributes(), { sequelize: sequelizeApp });
     await UserProjects.init(UserProjects.getAttributes(), { sequelize: sequelizeApp });
