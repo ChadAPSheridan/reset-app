@@ -25,8 +25,8 @@ const getColumns = async (req, res) => {
 
 const createColumn = async (req, res) => {
   try {
-    const { title, description, position, ProjectId } = req.body;
-    const column = await Column.create({ title, description, position, ProjectId });
+    const { title, description, position, projectId } = req.body;
+    const column = await Column.create({ title, description, position, ProjectId: projectId });
     await renumberColumnPositions();
     res.status(201).json(column);
   } catch (error) {
@@ -77,6 +77,8 @@ const updateColumn = async (req, res) => {
 
 const deleteColumn = async (req, res) => {
   try {
+    console.log('Deleting column');
+    console.log('req.params:', req.params);
     const { columnId } = req.params;
 
     const column = await Column.findByPk(columnId);

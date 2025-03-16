@@ -170,12 +170,15 @@ const TaskBoard: React.FC = () => {
   const handleDeleteColumn = async () => {
     if (columnToDelete !== null) {
       const columnExists = columns.some(column => column.id === columnToDelete);
+      console.log('Column to delete:', columnToDelete);
       if (!columnExists) {
         console.error('Column not found in state:', columnToDelete);
         return;
       }
       if (moveTasksToColumnId !== 'disabled') {
+        // console.log('Moving tasks to column:', moveTasksToColumnId);
         const targetColumnId = moveTasksToColumnId;
+        // console.log('Target column:', targetColumnId);
         const tasksToMove = tasks.filter(task => task.ColumnId === columnToDelete);
 
         const highestRow = tasks
@@ -200,6 +203,7 @@ const TaskBoard: React.FC = () => {
 
         const tasksData = await getTasks(projectId as string);
         setTasks(tasksData.data);
+        setIsDeleteDialogOpen(false);
       } catch (error) {
         console.error('Error deleting column:', error);
       }
@@ -406,10 +410,10 @@ const TaskBoard: React.FC = () => {
         <div className="dropdown-container">
           <p>Action for tasks:</p>
           <CustomDropdown
-            options={[{ value: columnToDelete?.toString() || 'disabled', label: 'Select One' }, { value: '', label: 'Delete tasks' }, ...columns.filter(column => column.id !== columnToDelete).map(column => ({ value: column.id.toString(), label: column.title }))]}
-            value={moveTasksToColumnId?.toString() || ''}
+            options={[{ value: columnToDelete || 'disabled', label: 'Select One' }, { value: '', label: 'Delete tasks' }, ...columns.filter(column => column.id !== columnToDelete).map(column => ({ value: column.id.toString(), label: column.title }))]}
+            value={moveTasksToColumnId || ''}
             onChange={(value) => {
-              setMoveTasksToColumnId(value ? parseInt(value).toString() : 'disabled');
+              setMoveTasksToColumnId(value ? value : 'disabled');
               setIsSubmitDisabled(value === columnToDelete?.toString() || value === '-1');
             }}
           />
