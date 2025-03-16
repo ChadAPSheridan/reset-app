@@ -151,6 +151,8 @@ const TaskBoard: React.FC = () => {
       setTasks([...tasks, newTask.data]);
       setNewTaskTitle('');
       setNewTaskDescription('');
+      setNewTaskColumnId(''); // Reset column selection
+      setEditTaskUserId(''); // Reset user assignment
       setIsTaskDialogOpen(false);
     } catch (error) {
       console.error('Error creating task:', error);
@@ -241,13 +243,17 @@ const TaskBoard: React.FC = () => {
       await deleteTask(taskToDelete.id);
       setTasks(tasks.filter(task => task.id !== taskToDelete.id));
       setIsDeleteTaskDialogOpen(false);
+      setIsEditTaskDialogOpen(false);
       setTaskToDelete(null);
     }
   };
 
-  const openDeleteTaskDialog = (task: Task) => {
-    setTaskToDelete(task);
+  const openDeleteTaskDialog = () => {
+    if (taskToEdit) {
+    console.log('Opening delete task dialog:', taskToEdit.id);
+    setTaskToDelete(taskToEdit);
     setIsDeleteTaskDialogOpen(true);
+    }
   };
 
   const handleUpdateTask = async () => {
@@ -327,7 +333,45 @@ const TaskBoard: React.FC = () => {
         columns={columns.map(column => ({ value: column.id.toString(), label: column.title }))}
         selectedColumnId={newTaskColumnId.toString()}
         setSelectedColumnId={(value) => setNewTaskColumnId(value)}
+        users={users}
+        editTaskUserId={editTaskUserId}
+        setEditTaskUserId={setEditTaskUserId}
+        currentUser={currentUser}
       />
+
+      <TaskDialog
+        isOpen={isEditTaskDialogOpen}
+        onClose={() => setIsEditTaskDialogOpen(false)}
+        title="Edit Task"
+        submitLabel="Update Task"
+        onSubmit={handleUpdateTask}
+        cancelLabel="Cancel"
+        onCancel={() => setIsEditTaskDialogOpen(false)}
+        taskTitle={editTaskTitle}
+        setTaskTitle={setEditTaskTitle}
+        taskDescription={editTaskDescription}
+        setTaskDescription={setEditTaskDescription}
+        columns={columns.map(column => ({ value: column.id.toString(), label: column.title }))}
+        selectedColumnId={taskToEdit?.ColumnId || ''}
+        setSelectedColumnId={(value) => setTaskToEdit(taskToEdit ? { ...taskToEdit, ColumnId: value } : null)}
+        users={users}
+        editTaskUserId={editTaskUserId}
+        setEditTaskUserId={setEditTaskUserId}
+        currentUser={currentUser}
+        openDeleteTaskDialog={openDeleteTaskDialog}
+      />
+
+      <Dialog
+        isOpen={isDeleteTaskDialogOpen}
+        onClose={() => setIsDeleteTaskDialogOpen(false)}
+        title="Delete Task"
+        submitLabel="Delete"
+        onSubmit={handleDeleteTask}
+        cancelLabel="Cancel"
+        onCancel={() => setIsDeleteTaskDialogOpen(false)}
+      >
+        <p>Are you sure you want to delete this task?</p>
+      </Dialog>
 
       <ColumnDialog
         isOpen={isColumnDialogOpen}
@@ -370,63 +414,6 @@ const TaskBoard: React.FC = () => {
             }}
           />
         </div>
-      </Dialog>
-
-      <Dialog
-        isOpen={isEditTaskDialogOpen}
-        onClose={() => setIsEditTaskDialogOpen(false)}
-        title="Edit Task"
-        submitLabel="Update Task"
-        onSubmit={handleUpdateTask}
-        cancelLabel="Cancel"
-        onCancel={() => setIsEditTaskDialogOpen(false)}
-      >
-        <input
-          type="text"
-          value={editTaskTitle}
-          onChange={(e) => setEditTaskTitle(e.target.value)}
-          placeholder="Task title"
-        />
-        <textarea
-          value={editTaskDescription}
-          onChange={(e) => setEditTaskDescription(e.target.value)}
-          placeholder="Task description"
-          rows={3}
-          className="description-textarea"
-        />
-        <p>Assigned to: </p>
-        {taskToEdit?.UserId ? (
-          <CustomDropdown
-            options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
-            value={editTaskUserId?.toString() || ''}
-            onChange={(value) => setEditTaskUserId(value)}
-            disabled={currentUser?.permissionLevel !== 'admin'}
-          />
-        ) : (
-          <>
-            {currentUser?.permissionLevel === 'user' && (
-              <Button
-                onClick={() => {
-                  setEditTaskUserId(currentUser.id);
-                  setTaskToEdit(taskToEdit ? { ...taskToEdit, UserId: currentUser.id } : null);
-                }}
-                className="assign-btn"
-              >
-                {editTaskUserId === currentUser.id ? `Assigned to ${currentUser.firstName} ${currentUser.lastName}` : 'Assign To Me'}
-              </Button>
-            )}
-            {currentUser?.permissionLevel === 'admin' && (
-              <CustomDropdown
-                options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
-                value={editTaskUserId?.toString() || ''}
-                onChange={(value) => setEditTaskUserId(value)}
-              />
-            )}
-          </>
-        )}
-        <Button onClick={() => openDeleteTaskDialog(taskToEdit!)} icon={faTrash} className="delete-btn dialog-delete-btn">
-          Delete Task
-        </Button>
       </Dialog>
     </div>
   );
