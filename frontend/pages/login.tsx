@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import axiosInstance from '../axiosSetup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import ParticlesBackground from '../components/ParticlesBackground';
@@ -14,18 +14,17 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/auth/login', { username, password });
-      
-      console.log('response:', response.data);
-      console.log('response.data.user:', response.data.user);
-      // Store the user object
-      localStorage.setItem('authUser', JSON.stringify(response.data.user));
-      
-      // Store the token
-      localStorage.setItem('auth', response.data.token);
+      console.log('Sending login request with:', { username, password });
+      const response = await axiosInstance.post('/api/auth/login', { username, password });
+      const { token, user } = response.data;
+      console.log('Response:', response.data);
+      console.log('Login successful:', user);
+      console.log('Token:', token);
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('authUser', JSON.stringify(user));
       router.push('/');
     } catch (error) {
-      alert('Invalid credentials');
+      console.error('Login failed:', error);
     }
   };
 

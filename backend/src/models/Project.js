@@ -2,28 +2,20 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Correct import
 const { v4: uuidv4 } = require('uuid'); // Import UUID
 
-const Column = sequelize.define('Column', {
+const Project = sequelize.define('Project', {
   id: {
     type: DataTypes.UUID,
     defaultValue: uuidv4,
     primaryKey: true,
   },
-  title: {
+  name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   description: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
-  },
-  position: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  ProjectId: {
-    type: DataTypes.UUID,
-    allowNull: false,
   },
 });
 
-module.exports = Column;
+module.exports = Project;

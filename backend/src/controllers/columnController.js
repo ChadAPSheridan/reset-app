@@ -12,7 +12,10 @@ const renumberColumnPositions = async () => {
 
 const getColumns = async (req, res) => {
   try {
-    const columns = await Column.findAll();
+    console.log('Getting columns');
+    console.log('req.params:', req.params);
+    const { projectId } = req.params;
+    const columns = await Column.findAll({ where: { ProjectId: projectId } });
     res.json(columns);
   } catch (error) {
     console.error('Error fetching columns:', error);
@@ -22,8 +25,8 @@ const getColumns = async (req, res) => {
 
 const createColumn = async (req, res) => {
   try {
-    const { title, description, position } = req.body;
-    const column = await Column.create({ title, description, position });
+    const { title, description, position, ProjectId } = req.body;
+    const column = await Column.create({ title, description, position, ProjectId });
     await renumberColumnPositions();
     res.status(201).json(column);
   } catch (error) {
@@ -42,7 +45,7 @@ const updateColumn = async (req, res) => {
 
     if (position !== undefined) {
       const columns = await Column.findAll();
-      const draggedColumn = columns.find(col => col.id === parseInt(columnId));
+      const draggedColumn = columns.find(col => col.id === columnId);
       if (draggedColumn) {
         const updatedColumns = columns.map(col => {
           if (col.id === draggedColumn.id) {

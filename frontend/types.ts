@@ -1,15 +1,23 @@
 export interface Column {
-  id: number;
+  id: string;
   title: string;
   description?: string;
   position: number; // Add position property
 }
 
 export interface Task {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  columnId: number;
+  ColumnId: string;
   row: number; // Add row property
-  userId?: number | null; // Add userId property
+  userId?: string | null; // Add userId property
+}
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  permissionLevel: 'user' | 'admin'; // Add permissionLevel property
 }

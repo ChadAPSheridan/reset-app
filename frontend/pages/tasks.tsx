@@ -1,25 +1,32 @@
+import '../axiosSetup';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { getTasks, createTask, updateTask, deleteTask, getColumns, createColumn, updateColumn, deleteColumn, getUsers } from '../services/apiService';
 import { Column, Task } from '../types';
 import Dialog from '../components/Dialog';
 import Button from '../components/Button';
 import CustomDropdown from '../components/CustomDropdown';
 import { faPlus, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
+import TaskComponent from '../components/Task';
+import ColumnComponent from '../components/Column';
+import TaskDialog from '../components/TaskDialog';
+import axiosInstance from '../axiosSetup';
+import ColumnDialog from '../components/ColumnDialog';
 
 const TaskBoard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [columns, setColumns] = useState<Column[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
-  const [newTaskColumnId, setNewTaskColumnId] = useState<number>(1);
+  const [newTaskColumnId, setNewTaskColumnId] = useState<string>('');
   const [newColumnTitle, setNewColumnTitle] = useState('');
   const [newColumnDescription, setNewColumnDescription] = useState('');
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [isColumnDialogOpen, setIsColumnDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [columnToDelete, setColumnToDelete] = useState<number | null>(null);
+  const [columnToDelete, setColumnToDelete] = useState<string>('');
   const [moveTasksToColumnId, setMoveTasksToColumnId] = useState<string | 'disabled'>('disabled');
-  const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
   const [editTaskTitle, setEditTaskTitle] = useState('');
@@ -28,18 +35,25 @@ const TaskBoard: React.FC = () => {
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [users, setUsers] = useState<any[]>([]);
-  const [editTaskUserId, setEditTaskUserId] = useState<number | null>(null);
+  const [editTaskUserId, setEditTaskUserId] = useState<string>('');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  // const [projectName, setProjectName] = useState<string>(''); // Add state for project name
+  const router = useRouter();
+  const { projectId, projectName } = router.query; // Extract projectId and projectName from query parameters
+
+  console.log(projectId, projectName); // Log projectId and projectName
 
   useEffect(() => {
     const fetchData = async () => {
-      const tasksData = await getTasks();
-      setTasks(tasksData.data);
-      const columnsData = await getColumns();
-      setColumns(columnsData.data);
+      if (projectId) {
+        const columnsData = await getColumns(projectId);
+        setColumns(columnsData.data);
+        const tasksData = await getTasks(projectId);
+        setTasks(tasksData.data);
+      }
     };
     fetchData();
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -59,46 +73,36 @@ const TaskBoard: React.FC = () => {
 
   useEffect(() => {
     if (taskToEdit) {
-      setEditTaskUserId(taskToEdit.userId || null);
+      setEditTaskUserId(taskToEdit.userId || '');
     }
   }, [taskToEdit]);
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: number, type: 'task' | 'column') => {
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string, type: 'task' | 'column') => {
     e.stopPropagation();
     e.dataTransfer.setData('id', id.toString());
     e.dataTransfer.setData('type', type);
   };
 
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, columnId: number, targetRow?: number) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, ColumnId: string, targetRow?: number) => {
     e.preventDefault();
     e.stopPropagation();
-    const id = parseInt(e.dataTransfer.getData('id'));
+    const id = e.dataTransfer.getData('id');
     const type = e.dataTransfer.getData('type');
 
     if (type === 'task') {
       const task = tasks.find(task => task.id === id);
-      if (task && (task.columnId !== columnId || task.row !== targetRow)) {
+      if (task && (task.ColumnId !== ColumnId || task.row !== targetRow)) {
         if (targetRow === undefined) {
-          targetRow = tasks.filter(task => task.columnId === columnId).length + 1;
+          targetRow = tasks.filter(task => task.ColumnId === ColumnId).length + 1;
         }
 
-        await updateTask(id, { columnId, row: targetRow });
-        const updatedTasks = await getTasks();
+        await updateTask(id, { ColumnId, row: targetRow });
+        const updatedTasks = await getTasks(projectId as string);
         setTasks(updatedTasks.data);
-
-        const freshStartColumn = columns.find(col => col.title === 'Fresh Start');
-        if (freshStartColumn) {
-          const freshStartTasks = updatedTasks.data.filter((task: Task) => task.columnId === freshStartColumn.id);
-          if (freshStartTasks.length === 0) {
-            await deleteColumn(freshStartColumn.id);
-            const updatedColumns = await getColumns();
-            setColumns(updatedColumns.data);
-          }
-        }
       }
     } else if (type === 'column') {
       const draggedColumn = columns.find(col => col.id === id);
-      const targetColumn = columns.find(col => col.id === columnId);
+      const targetColumn = columns.find(col => col.id === ColumnId);
 
       if (draggedColumn && targetColumn) {
         const updatedColumns = columns.map(col => {
@@ -130,15 +134,31 @@ const TaskBoard: React.FC = () => {
   };
 
   const handleAddTask = async () => {
-    const newTask = await createTask({ title: newTaskTitle, description: newTaskDescription, columnId: newTaskColumnId });
-    setTasks([...tasks, newTask.data]);
-    setNewTaskTitle('');
-    setNewTaskDescription('');
-    setIsTaskDialogOpen(false);
+    // Check if the ColumnId exists
+    const columnExists = columns.some(column => column.id === newTaskColumnId);
+    if (!columnExists) {
+      console.error('Column does not exist:', newTaskColumnId);
+      return;
+    }
+
+    try {
+      const newTask = await createTask({
+        title: newTaskTitle,
+        description: newTaskDescription,
+        ColumnId: newTaskColumnId,
+        ProjectId: projectId
+      });
+      setTasks([...tasks, newTask.data]);
+      setNewTaskTitle('');
+      setNewTaskDescription('');
+      setIsTaskDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
   };
 
   const handleAddColumn = async () => {
-    const newColumn = await createColumn({ title: newColumnTitle, description: newColumnDescription, position: columns.length });
+    const newColumn = await createColumn({ title: newColumnTitle, description: newColumnDescription, position: columns.length, projectId });
     setColumns([...columns, newColumn.data]);
     setNewColumnTitle('');
     setNewColumnDescription('');
@@ -153,19 +173,19 @@ const TaskBoard: React.FC = () => {
         return;
       }
       if (moveTasksToColumnId !== 'disabled') {
-        const targetColumnId = parseInt(moveTasksToColumnId, 10);
-        const tasksToMove = tasks.filter(task => task.columnId === columnToDelete);
+        const targetColumnId = moveTasksToColumnId;
+        const tasksToMove = tasks.filter(task => task.ColumnId === columnToDelete);
 
         const highestRow = tasks
-          .filter(task => task.columnId === targetColumnId)
+          .filter(task => task.ColumnId === targetColumnId)
           .reduce((max, task) => (task.row > max ? task.row : max), 0);
 
         for (let i = 0; i < tasksToMove.length; i++) {
           const task = tasksToMove[i];
-          await updateTask(task.id, { columnId: targetColumnId, row: highestRow + 1 + i });
+          await updateTask(task.id, { ColumnId: targetColumnId, row: highestRow + 1 + i });
         }
       } else {
-        const tasksToDelete = tasks.filter(task => task.columnId === columnToDelete);
+        const tasksToDelete = tasks.filter(task => task.ColumnId === columnToDelete);
         for (const task of tasksToDelete) {
           await deleteTask(task.id);
         }
@@ -174,17 +194,13 @@ const TaskBoard: React.FC = () => {
       try {
         await deleteColumn(columnToDelete);
         setColumns(columns.filter(column => column.id !== columnToDelete));
-        setTasks(tasks.filter(task => task.columnId !== columnToDelete));
+        setTasks(tasks.filter(task => task.ColumnId !== columnToDelete));
 
-        const tasksData = await getTasks();
+        const tasksData = await getTasks(projectId as string);
         setTasks(tasksData.data);
       } catch (error) {
         console.error('Error deleting column:', error);
       }
-
-      setIsDeleteDialogOpen(false);
-      setColumnToDelete(null);
-      setMoveTasksToColumnId('disabled');
     }
   };
 
@@ -195,68 +211,28 @@ const TaskBoard: React.FC = () => {
     setIsEditTaskDialogOpen(true);
   };
 
-  const toggleTaskExpansion = (taskId: number) => {
+  const toggleTaskExpansion = (taskId: string) => {
     setExpandedTaskId(expandedTaskId === taskId ? null : taskId);
-  };
-
-  const renderTasks = (columnId: number) => {
-    return tasks
-      .filter(task => task.columnId === columnId)
-      .sort((a, b) => a.row - b.row)
-      .map((task, index) => {
-        const assignedUser = users.find(user => user.id === task.userId);
-        const userInitials = assignedUser ? `${assignedUser.firstName.charAt(0)}${assignedUser.lastName.charAt(0)}`.toUpperCase() : '';
-        const userFullName = assignedUser ? `${assignedUser.firstName} ${assignedUser.lastName}` : 'Unassigned';
-
-        return (
-          <div
-            key={task.id}
-            className={`task ${expandedTaskId === task.id ? 'expanded' : ''}`}
-            draggable
-            onDragStart={(e) => handleDragStart(e, task.id, 'task')}
-            onDrop={(e) => handleDrop(e, columnId, index)}
-            onDragOver={handleDragOver}
-            onDoubleClick={() => handleDoubleClick(task)}
-            onClick={() => toggleTaskExpansion(task.id)}
-          >
-            <div className="task-header">
-              <h3>{task.title}</h3>
-              {assignedUser && (
-                <div className="user-icon" title={userFullName}>
-                  {userInitials}
-                </div>
-              )}
-            </div>
-            {expandedTaskId === task.id && (
-              <div className="description">
-                <p>Description: {task.description}</p>
-              </div>
-            )}
-          </div>
-        );
-      });
   };
 
   const renderColumns = () => {
     const sortedColumns = [...columns].sort((a, b) => a.position - b.position);
 
     return sortedColumns.map(column => (
-      <div
+      <ColumnComponent
         key={column.id}
-        className={`column ${column.title === 'Fresh Start' ? 'fresh-start' : ''}`}
-        draggable
-        onDragStart={(e) => handleDragStart(e, column.id, 'column')}
-        onDrop={(e) => handleDrop(e, column.id)}
-        onDragOver={handleDragOver}
-        data-column-id={column.id}
-      >
-        <div className="column-header">
-          <h2>{column.title}</h2>
-          <Button onClick={() => { setColumnToDelete(column.id); setIsDeleteDialogOpen(true); }} icon={faTrash} className="delete-btn">
-          </Button>
-        </div>
-        {renderTasks(column.id)}
-      </div>
+        column={column}
+        tasks={tasks}
+        users={users}
+        expandedTaskId={expandedTaskId || ''}
+        handleDragStart={handleDragStart}
+        handleDrop={handleDrop}
+        handleDragOver={handleDragOver}
+        handleDoubleClick={handleDoubleClick}
+        toggleTaskExpansion={toggleTaskExpansion}
+        setColumnToDelete={setColumnToDelete}
+        setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+      />
     ));
   };
 
@@ -266,7 +242,6 @@ const TaskBoard: React.FC = () => {
       setTasks(tasks.filter(task => task.id !== taskToDelete.id));
       setIsDeleteTaskDialogOpen(false);
       setTaskToDelete(null);
-      setIsEditTaskDialogOpen(false);
     }
   };
 
@@ -280,22 +255,22 @@ const TaskBoard: React.FC = () => {
       await updateTask(taskToEdit.id, {
         title: editTaskTitle,
         description: editTaskDescription,
-        columnId: taskToEdit.columnId,
+        ColumnId: taskToEdit.ColumnId,
         row: taskToEdit.row,
         userId: editTaskUserId,
       });
-      const updatedTasks = await getTasks();
+      const updatedTasks = await getTasks(projectId as string);
       setTasks(updatedTasks.data);
       setIsEditTaskDialogOpen(false);
     }
   };
 
   const handleFreshStart = async () => {
-    const freshStartColumn = await createColumn({ title: 'Fresh Start', description: 'Tasks for the new sprint', position: columns.length });
+    const freshStartColumn = await createColumn({ title: 'Fresh Start', description: 'Tasks for the new sprint', position: columns.length, projectId });
 
     const updatedTasks = tasks.map(async (task) => {
-      if (task.columnId !== columns.find(col => col.title === 'Done')?.id) {
-        await updateTask(task.id, { columnId: freshStartColumn.data.id });
+      if (task.ColumnId !== columns.find(col => col.title === 'Done')?.id) {
+        await updateTask(task.id, { ColumnId: freshStartColumn.data.id });
       }
     });
 
@@ -303,22 +278,24 @@ const TaskBoard: React.FC = () => {
 
     const doneColumnId = columns.find(col => col.title === 'Done')?.id;
     if (doneColumnId) {
-      const tasksToDelete = tasks.filter(task => task.columnId === doneColumnId);
+      const tasksToDelete = tasks.filter(task => task.ColumnId === doneColumnId);
       const deleteTasks = tasksToDelete.map(task => deleteTask(task.id));
       await Promise.all(deleteTasks);
     }
 
-    const tasksData = await getTasks();
+    const tasksData = await getTasks(projectId as string);
     setTasks(tasksData.data);
-    const columnsData = await getColumns();
+    const columnsData = await getColumns(projectId as string);
     setColumns(columnsData.data);
   };
 
   return (
-    <div className="task-board">
-      <div className="task-board-header">
-        <div className="breadcrumb-title">Task Board</div>
-        <div className="task-board-buttons">
+    <div className="board-content">
+      <div className="board-header">
+        <div className="breadcrumb-title">
+          {projectName ? `${projectName} - Task Board` : 'Task Board'} {/* Display project name if available */}
+        </div>
+        <div className="board-header-buttons">
           <Button onClick={() => setIsTaskDialogOpen(true)} icon={faPlus}>
             Add Task
           </Button>
@@ -334,7 +311,7 @@ const TaskBoard: React.FC = () => {
         {renderColumns()}
       </div>
 
-      <Dialog
+      <TaskDialog
         isOpen={isTaskDialogOpen}
         onClose={() => setIsTaskDialogOpen(false)}
         title="Add New Task"
@@ -342,28 +319,16 @@ const TaskBoard: React.FC = () => {
         onSubmit={handleAddTask}
         cancelLabel="Cancel"
         onCancel={() => setIsTaskDialogOpen(false)}
-      >
-        <input
-          type="text"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-          placeholder="New task title"
-        />
-        <textarea
-          value={newTaskDescription}
-          onChange={(e) => setNewTaskDescription(e.target.value)}
-          placeholder="New task description"
-          rows={3}
-          className="description-textarea"
-        />
-        <CustomDropdown
-          options={columns.map(column => ({ value: column.id.toString(), label: column.title }))}
-          value={newTaskColumnId.toString()}
-          onChange={(value) => setNewTaskColumnId(parseInt(value))}
-        />
-      </Dialog>
+        taskTitle={newTaskTitle}
+        setTaskTitle={setNewTaskTitle}
+        taskDescription={newTaskDescription}
+        setTaskDescription={setNewTaskDescription}
+        columns={columns.map(column => ({ value: column.id.toString(), label: column.title }))}
+        selectedColumnId={newTaskColumnId.toString()}
+        setSelectedColumnId={(value) => setNewTaskColumnId(value)}
+      />
 
-      <Dialog
+      <ColumnDialog
         isOpen={isColumnDialogOpen}
         onClose={() => setIsColumnDialogOpen(false)}
         title="Add New Column"
@@ -371,21 +336,11 @@ const TaskBoard: React.FC = () => {
         onSubmit={handleAddColumn}
         cancelLabel="Cancel"
         onCancel={() => setIsColumnDialogOpen(false)}
-      >
-        <input
-          type="text"
-          value={newColumnTitle}
-          onChange={(e) => setNewColumnTitle(e.target.value)}
-          placeholder="New column title"
-        />
-        <textarea
-          value={newColumnDescription}
-          placeholder="New column description"
-          onChange={(e) => setNewColumnDescription(e.target.value)}
-          rows={3}
-          className="description-textarea"
-        />
-      </Dialog>
+        columnTitle={newColumnTitle}
+        setColumnTitle={setNewColumnTitle}
+        columnDescription={newColumnDescription}
+        setColumnDescription={setNewColumnDescription}
+      />
 
       <Dialog
         isOpen={isDeleteDialogOpen}
@@ -399,11 +354,7 @@ const TaskBoard: React.FC = () => {
         submitDisabled={isSubmitDisabled}
         onSubmit={handleDeleteColumn}
         cancelLabel="Cancel"
-        onCancel={() => {
-          setIsDeleteDialogOpen(false);
-          setMoveTasksToColumnId(columnToDelete?.toString() || 'disabled');
-          setIsSubmitDisabled(true);
-        }}
+        onCancel={() => setIsDeleteDialogOpen(false)}
       >
         <span className='warning'>This will permanently delete this column and its tasks unless you move them to another column.</span>
         <span className='danger'>This Cannot Be Undone!</span>
@@ -447,7 +398,7 @@ const TaskBoard: React.FC = () => {
           <CustomDropdown
             options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
             value={editTaskUserId?.toString() || ''}
-            onChange={(value) => setEditTaskUserId(parseInt(value))}
+            onChange={(value) => setEditTaskUserId(value)}
             disabled={currentUser?.permissionLevel !== 'admin'}
           />
         ) : (
@@ -467,12 +418,13 @@ const TaskBoard: React.FC = () => {
               <CustomDropdown
                 options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
                 value={editTaskUserId?.toString() || ''}
-                onChange={(value) => setEditTaskUserId(parseInt(value))}
+                onChange={(value) => setEditTaskUserId(value)}
               />
             )}
           </>
         )}
         <Button onClick={() => openDeleteTaskDialog(taskToEdit!)} icon={faTrash} className="delete-btn dialog-delete-btn">
+          Delete Task
         </Button>
       </Dialog>
     </div>

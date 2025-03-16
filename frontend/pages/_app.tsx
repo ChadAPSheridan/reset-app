@@ -12,7 +12,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    const authUserString = localStorage.getItem('authUser');
+    if (!authUserString) {
+      router.push('/login');
+    }
+  }, [router]);
 
   if (!isClient) {
     return null; // Render nothing on the server

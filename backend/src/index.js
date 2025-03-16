@@ -6,7 +6,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
-const sequelize = require('./config/database'); // Import Sequelize instance
+const sequelize = require('./config/database');
 
 dotenv.config();
 
@@ -16,7 +16,6 @@ const io = socketIo(server);
 
 const logger = pino();
 
-// Update CORS configuration
 app.use(cors({
   origin: 'http://localhost:3001',
   credentials: true,
@@ -44,17 +43,29 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes').router;
 const taskRoutes = require('./routes/taskRoutes');
 const columnRoutes = require('./routes/columnRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/columns', columnRoutes);
+app.use('/api/projects', projectRoutes);
+
+console.log('Routes initialized');
+
+// Middleware to log route and method
+app.use((req, res, next) => {
+  console.log(`Route called: ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // Socket.io setup
 io.on('connection', (socket) => {
   logger.info('New client connected');
+  console.log('New client connected');
   socket.on('disconnect', () => {
     logger.info('Client disconnected');
+    console.log('Client disconnected');
   });
 });
 
@@ -63,7 +74,9 @@ sequelize.sync().then(() => {
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 }).catch(err => {
   logger.error('Unable to connect to the database:', err);
+  console.error('Unable to connect to the database:', err);
 });

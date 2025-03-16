@@ -3,9 +3,9 @@ const { Op } = require('sequelize');
 const sequelize = require('../config/database');
 
 // Renumber task rows
-const renumberTaskRows = async (columnId) => {
-  console.log(`Renumbering task rows for columnId: ${columnId}`);
-  const tasks = await Task.findAll({ where: { columnId }, order: [['row', 'ASC']] });
+const renumberTaskRows = async (ColumnId) => {
+  console.log(`Renumbering task rows for ColumnId: ${ColumnId}`);
+  const tasks = await Task.findAll({ where: { ColumnId }, order: [['row', 'ASC']] });
   for (let i = 0; i < tasks.length; i++) {
     await tasks[i].update({ row: i });
   }
@@ -13,8 +13,9 @@ const renumberTaskRows = async (columnId) => {
 
 const getTasks = async (req, res) => {
   try {
-    console.log('Fetching all tasks');
-    const tasks = await Task.findAll();
+    console.log('Fetching tasks for project:', req.params.projectId);
+    const { projectId } = req.params;
+    const tasks = await Task.findAll({ where: { ProjectId: projectId } });
     res.status(200).json(tasks);
   } catch (error) {
     console.error('Error fetching tasks:', error);
@@ -25,9 +26,9 @@ const getTasks = async (req, res) => {
 const createTask = async (req, res) => {
   try {
     console.log('Creating a new task with data:', req.body);
-    const { title, description, columnId } = req.body;
-    const row = await Task.count({ where: { columnId } });
-    const task = await Task.create({ title, description, columnId, row });
+    const { title, description, ColumnId, ProjectId, UserId } = req.body;
+    const row = await Task.count({ where: { ColumnId } });
+    const task = await Task.create({ title, description, ColumnId, ProjectId, UserId, row });
     res.status(201).json(task);
   } catch (error) {
     console.error('Error creating task:', error);
@@ -40,7 +41,7 @@ const updateTask = async (req, res) => {
     console.log('Updating task with params:', req.params);
     console.log('Updating task with body:', req.body);
     const { taskId } = req.params;
-    const { title, description, columnId, row } = req.body;
+    const { title, description, ColumnId, row } = req.body;
 
     const task = await Task.findOne({ where: { id: taskId } });
     if (!task) {
@@ -48,30 +49,30 @@ const updateTask = async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    const originalColumnId = task.columnId;
+    const originalColumnId = task.ColumnId;
 
-    if (columnId !== undefined && columnId !== task.columnId) {
-      console.log(`Moving task to new column: ${columnId}`);
-      const targetRow = row !== undefined ? row : await Task.count({ where: { columnId } });
+    if (ColumnId !== undefined && ColumnId !== task.ColumnId) {
+      console.log(`Moving task to new column: ${ColumnId}`);
+      const targetRow = row !== undefined ? row : await Task.count({ where: { ColumnId } });
 
       await Task.update(
         { row: sequelize.literal('row + 1') },
-        { where: { columnId, row: { [Op.gte]: targetRow } } }
+        { where: { ColumnId, row: { [Op.gte]: targetRow } } }
       );
 
-      await task.update({ columnId, row: targetRow });
+      await task.update({ ColumnId, row: targetRow });
       await renumberTaskRows(originalColumnId);
-      await renumberTaskRows(columnId);
+      await renumberTaskRows(ColumnId);
     } else if (row !== undefined && row !== task.row) {
       console.log(`Updating task row to: ${row}`);
       const increment = row > task.row ? -1 : 1;
       await Task.update(
         { row: sequelize.literal(`row + ${increment}`) },
-        { where: { columnId: task.columnId, row: { [Op.between]: [Math.min(task.row, row), Math.max(task.row, row)] } } }
+        { where: { ColumnId: task.ColumnId, row: { [Op.between]: [Math.min(task.row, row), Math.max(task.row, row)] } } }
       );
 
       await task.update({ row });
-      await renumberTaskRows(task.columnId);
+      await renumberTaskRows(task.ColumnId);
     }
 
     await task.update(req.body);
@@ -93,10 +94,10 @@ const deleteTask = async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    const columnId = task.columnId;
+    const ColumnId = task.ColumnId;
 
     await task.destroy();
-    await renumberTaskRows(columnId);
+    await renumberTaskRows(ColumnId);
     res.status(204).end();
   } catch (error) {
     console.error('Error deleting task:', error);

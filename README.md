@@ -21,9 +21,11 @@ Reset is a minimalist, Kanban-style project management tool designed for small p
 
 ## Setup Instructions
 1. Clone the repository.
-2. Navigate to the `init` directory and run `node index.js`
-3. Follow the prompts to configure the database and install dependencies.
-4. Launch the dev environment from the root of the app with `npm run dev`
+2. cd into reset-app
+3. run npm install
+4. Navigate to the `init` directory and run `node index.js`
+5. Follow the prompts to configure the database and install dependencies.
+6. Launch the dev environment from the root of the app with `npm run dev`
 
 
 ## Deploying to NGINX server (outdated, yymv)

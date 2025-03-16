@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { authMiddleware } = require('./authRoutes');
+const { authenticate } = require('./authRoutes'); // Correctly import authenticate middleware
 const {
   getUserProfile,
   updateUserProfile,
@@ -16,40 +16,59 @@ const router = express.Router();
 
 // Register a new user
 router.post('/register', async (req, res) => {
+  console.log('Register route called with body:', req.body);
   const { username, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const user = await User.create({ username, password: hashedPassword });
+    console.log('User created:', user);
     res.status(201).json(user);
   } catch (error) {
+    console.error('Error registering user:', error);
     res.status(400).json({ error: error.message });
   }
 });
 
 // Login a user
 router.post('/login', async (req, res) => {
+  console.log('Login route called with body:', req.body);
   const { username, password } = req.body;
   try {
     const user = await User.findOne({ where: { username } });
     if (!user) {
+      console.log('User not found for username:', username);
       return res.status(404).json({ error: 'User not found' });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log('Invalid credentials for username:', username);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    console.log('Token generated for user:', user);
     res.json({ token });
   } catch (error) {
+    console.error('Error logging in user:', error);
     res.status(400).json({ error: error.message });
   }
 });
 
-router.get('/profile', authMiddleware, getUserProfile);
-router.put('/profile', authMiddleware, updateUserProfile);
-router.get('/', authMiddleware, getUsers);
-router.post('/', authMiddleware, createUser);
-router.put('/:userId', authMiddleware, updateUser);
-router.delete('/:userId', authMiddleware, deleteUser);
+// Get user profile
+router.get('/me', authenticate, getUserProfile);
+
+router.get('/profile', authenticate, getUserProfile);
+router.put('/profile', authenticate, updateUserProfile);
+router.get('/', authenticate, async (req, res) => {
+  console.log('GET /api/users route called');
+  try {
+    const users = await getUsers(req, res);
+    console.log('Users fetched:', users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  }
+});
+router.post('/', authenticate, createUser);
+router.put('/:userId', authenticate, updateUser);
+router.delete('/:userId', authenticate, deleteUser);
 
 module.exports = router;

@@ -6,9 +6,7 @@ const crypto = require('crypto'); // Import crypto for generating JWT_SECRET
 require('dotenv').config({ path: '../backend/.env' });
 
 const { Sequelize } = require('sequelize'); // Import Sequelize
-const User = require('../backend/src/models/User'); // Import User model
-const Column = require('../backend/src/models/Column'); // Import Column model
-const Task = require('../backend/src/models/Task'); // Import Task model
+const { User, Project, Column, Task, UserProjects } = require('../backend/src/models'); // Import models
 
 // Function to display ASCII header
 const displayHeader = (title) => {
@@ -122,7 +120,13 @@ const testDBConnection = async () => {
     await sequelizeVerify.authenticate();
     console.log('Connected to the database successfully.');
   } catch (error) {
-    console.error('Failed to connect to the database:', error);
+    if (error instanceof Sequelize.AccessDeniedError) {
+      console.error('Access denied for user. Deleting .env file and restarting setup.');
+      fs.unlinkSync('../backend/.env'); // Delete the .env file
+    } else {
+      console.error('Failed to connect to the database:', error);
+    }
+    throw error; // Re-throw the error to handle it in the main function
   }
 };
 
@@ -310,20 +314,21 @@ const createAppTables = async (sequelizeApp) => {
   try {
     // Register models with the new Sequelize instance
     User.init(User.getAttributes(), { sequelize: sequelizeApp });
+    Project.init(Project.getAttributes(), { sequelize: sequelizeApp });
     Column.init(Column.getAttributes(), { sequelize: sequelizeApp });
     Task.init(Task.getAttributes(), { sequelize: sequelizeApp });
+    await UserProjects.init(UserProjects.getAttributes(), { sequelize: sequelizeApp });
 
     // Sync all models that are not already in the database
     await sequelizeApp.sync();
     console.log('App tables created successfully.');
 
     // Prompt for admin details
-    console.log('Please enter the details for the Reset App admin user:');
     const [firstName, lastName, username, password] = await promptAdminDetails();
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert the new admin user into the User table
-    await User.create({
+    const adminUser = await User.create({
       firstName,
       lastName,
       username,
@@ -333,17 +338,26 @@ const createAppTables = async (sequelizeApp) => {
 
     console.log('Admin user created successfully.');
 
+    // Insert default project
+    const defaultProject = await Project.create({ name: 'Default Project', description: 'This is the default project.' });
+
+    // Ensure the default project is created before creating columns
+    await defaultProject.save();
+
     // Create default columns
     const defaultColumns = [
-      { title: 'To Do', description: 'Tasks yet to be started.', position: 1 },
-      { title: 'In Progress', description: 'Tasks currently being worked on.', position: 2 },
-      { title: 'Review', description: 'Tasks awaiting review and approval.', position: 3 },
-      { title: 'Done', description: 'Completed Tasks.', position: 4 }
+      { title: 'To Do', description: 'Tasks yet to be started.', position: 1, ProjectId: defaultProject.id },
+      { title: 'In Progress', description: 'Tasks currently being worked on.', position: 2, ProjectId: defaultProject.id },
+      { title: 'Review', description: 'Tasks awaiting review and approval.', position: 3, ProjectId: defaultProject.id },
+      { title: 'Done', description: 'Completed Tasks.', position: 4, ProjectId: defaultProject.id }
     ];
 
     for (const column of defaultColumns) {
       await Column.create(column);
     }
+
+    // Create the link between the admin user and the default project
+    await adminUser.addProject(defaultProject);
 
     console.log('Default columns created successfully.');
   } catch (error) {
@@ -413,10 +427,14 @@ const main = async () => {
     fs.writeFileSync(envPath, ''); // Create the .env file if it doesn't exist
   }
 
-  if (isEnvFileValid()) {
-    console.log('.env file is valid.');
-    await testDBConnection();
-    return;
+  try {
+    if (isEnvFileValid()) {
+      console.log('.env file is valid.');
+      await testDBConnection();
+      return;
+    }
+  } catch (error) {
+    console.log('Invalid .env file. Restarting setup.');
   }
 
   const [adminUsername, adminPassword, dbHost] = await promptAdminCredentials();
@@ -450,7 +468,6 @@ const main = async () => {
       await sequelizeApp.authenticate();
       console.log('App connected to the database successfully.');
       finalizeEnvFile(); // Add #valid to .env file
-
 
     } catch (error) {
       console.error('Failed to connect to the database with app credentials:', error);

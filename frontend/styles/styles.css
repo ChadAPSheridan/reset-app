@@ -260,7 +260,7 @@ body {
   right: unset;
   bottom: 20px;
 }
-.task-board {
+.board-content {
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -271,7 +271,7 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.task-board-header {
+.board-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -283,7 +283,7 @@ body {
   font-weight: bold;
 }
 
-.task-board-buttons {
+.board-header-buttons {
   display: flex;
   gap: 10px;
 }
@@ -832,4 +832,13 @@ body {
   border: none;
   cursor: pointer;
   color: #333;
+}
+
+.user-select {
+  display: flex;
+  align-items: center;
+}
+.user-select input {
+  margin: 10px;
+  width: auto;
 }
