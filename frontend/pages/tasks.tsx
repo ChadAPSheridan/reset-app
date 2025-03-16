@@ -41,7 +41,7 @@ const TaskBoard: React.FC = () => {
   const router = useRouter();
   const { projectId, projectName } = router.query; // Extract projectId and projectName from query parameters
 
-  console.log(projectId, projectName); // Log projectId and projectName
+  // console.log(projectId, projectName); // Log projectId and projectName
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,7 +73,7 @@ const TaskBoard: React.FC = () => {
 
   useEffect(() => {
     if (taskToEdit) {
-      setEditTaskUserId(taskToEdit.userId || '');
+      setEditTaskUserId(taskToEdit.UserId || '');
     }
   }, [taskToEdit]);
 
@@ -252,12 +252,13 @@ const TaskBoard: React.FC = () => {
 
   const handleUpdateTask = async () => {
     if (taskToEdit) {
+      console.log('Updating task:', taskToEdit.id);
       await updateTask(taskToEdit.id, {
         title: editTaskTitle,
         description: editTaskDescription,
         ColumnId: taskToEdit.ColumnId,
         row: taskToEdit.row,
-        userId: editTaskUserId,
+        UserId: editTaskUserId,
       });
       const updatedTasks = await getTasks(projectId as string);
       setTasks(updatedTasks.data);
@@ -394,7 +395,7 @@ const TaskBoard: React.FC = () => {
           className="description-textarea"
         />
         <p>Assigned to: </p>
-        {taskToEdit?.userId ? (
+        {taskToEdit?.UserId ? (
           <CustomDropdown
             options={users.map(user => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
             value={editTaskUserId?.toString() || ''}
@@ -407,7 +408,7 @@ const TaskBoard: React.FC = () => {
               <Button
                 onClick={() => {
                   setEditTaskUserId(currentUser.id);
-                  setTaskToEdit(taskToEdit ? { ...taskToEdit, userId: currentUser.id } : null);
+                  setTaskToEdit(taskToEdit ? { ...taskToEdit, UserId: currentUser.id } : null);
                 }}
                 className="assign-btn"
               >

@@ -22,7 +22,7 @@ const TaskComponent: React.FC<TaskProps> = ({
   handleDoubleClick,
   toggleTaskExpansion,
 }) => {
-  const assignedUser = users.find(user => user.id === task.userId);
+  const assignedUser = users.find(user => user.id === task.UserId);
   const userInitials = assignedUser ? `${assignedUser.firstName.charAt(0)}${assignedUser.lastName.charAt(0)}`.toUpperCase() : '';
   const userFullName = assignedUser ? `${assignedUser.firstName} ${assignedUser.lastName}` : 'Unassigned';
 

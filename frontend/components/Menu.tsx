@@ -38,7 +38,7 @@ const Menu: React.FC = () => {
         if (!token) {
           throw new Error('No auth token found');
         } else {
-          console.log('Token Found!!!:', token);
+          // console.log('Token Found!!!:', token);
         }
         const response = await axiosInstance.get('/api/projects');
         setProjects(response.data);

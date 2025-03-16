@@ -11,7 +11,7 @@ export interface Task {
   description: string;
   ColumnId: string;
   row: number; // Add row property
-  userId?: string | null; // Add userId property
+  UserId?: string | null; // Add userId property
 }
 
 export interface User {
