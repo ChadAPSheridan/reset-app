@@ -41,7 +41,7 @@ const updateTask = async (req, res) => {
     console.log('Updating task with params:', req.params);
     console.log('Updating task with body:', req.body);
     const { taskId } = req.params;
-    const { title, description, ColumnId, row } = req.body;
+    const { title, description, ColumnId, row, UserId } = req.body;
 
     const task = await Task.findOne({ where: { id: taskId } });
     if (!task) {
@@ -71,7 +71,7 @@ const updateTask = async (req, res) => {
         { where: { ColumnId: task.ColumnId, row: { [Op.between]: [Math.min(task.row, row), Math.max(task.row, row)] } } }
       );
 
-      await task.update({ row });
+      await Task.update({ row });
       await renumberTaskRows(task.ColumnId);
     }
 

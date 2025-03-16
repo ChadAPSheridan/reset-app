@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CustomDropdown from './CustomDropdown';
+import Dialog from './Dialog';
 
 interface TaskDialogProps {
   isOpen: boolean;
@@ -38,46 +39,41 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
 
   useEffect(() => {
     setNewTaskColumnId(selectedColumnId);
-    console.log('New task column in useEffect:', newTaskColumnId); // Debugging log
   }, [selectedColumnId]);
 
   const handleColumnChange = (value: string) => {
-    console.log('Value:', value); // Debugging log
     setNewTaskColumnId(value);
-    console.log('New task column:', newTaskColumnId); // Debugging log
     setSelectedColumnId(value);
-    console.log('Selected column:', selectedColumnId); // Debugging log
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="dialog">
-      <div className="dialog-content">
-        <h2>{title}</h2>
-        <input
-          type="text"
-          value={taskTitle}
-          onChange={(e) => setTaskTitle(e.target.value)}
-          placeholder="Task title"
-        />
-        <textarea
-          value={taskDescription}
-          onChange={(e) => setTaskDescription(e.target.value)}
-          placeholder="Task description"
-          rows={3}
-        />
-        <CustomDropdown
-          options={columns}
-          value={newTaskColumnId}
-          onChange={handleColumnChange}
-        />
-        <div className="dialog-actions">
-          <button onClick={onSubmit}>{submitLabel}</button>
-          <button onClick={onCancel}>{cancelLabel}</button>
-        </div>
-      </div>
-    </div>
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      submitLabel={submitLabel}
+      onSubmit={onSubmit}
+      cancelLabel={cancelLabel}
+      onCancel={onCancel}
+    >
+      <input
+        type="text"
+        value={taskTitle}
+        onChange={(e) => setTaskTitle(e.target.value)}
+        placeholder="Task title"
+      />
+      <textarea
+        value={taskDescription}
+        onChange={(e) => setTaskDescription(e.target.value)}
+        placeholder="Task description"
+        rows={3}
+      />
+      <CustomDropdown
+        options={columns}
+        value={newTaskColumnId}
+        onChange={handleColumnChange}
+      />
+    </Dialog>
   );
 };
 
