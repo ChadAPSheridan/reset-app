@@ -52,7 +52,4 @@ const User = sequelize.define('User', {
   },
 });
 
-User.hasMany(UserProjects, { foreignKey: 'UserId' });
-UserProjects.belongsTo(User, { foreignKey: 'UserId' });
-
 module.exports = User;

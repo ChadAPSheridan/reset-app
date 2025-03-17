@@ -93,7 +93,7 @@ const Menu: React.FC = () => {
           <div className="menu-section">
             <h2 onClick={toggleTasks}>
               <FontAwesomeIcon icon={faTasks} className="menu-icon" />
-              {!isCollapsed && ' Tasks'}
+              {!isCollapsed && ' Projects'}
               <FontAwesomeIcon icon={isTasksExpanded ? faChevronUp : faChevronDown} className="chevron" />
             </h2>
             {isTasksExpanded && (
