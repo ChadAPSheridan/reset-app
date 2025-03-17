@@ -3,6 +3,7 @@ const sequelize = require('../config/database'); // Correct import
 const { v4: uuidv4 } = require('uuid'); // Import UUID
 
 const bcrypt = require('bcrypt');
+const UserProjects = require('./UserProjects'); // Import UserProjects
 
 console.log('Sequelize instance imported in User model:', sequelize); // Debugging output
 
@@ -50,5 +51,8 @@ const User = sequelize.define('User', {
     },
   },
 });
+
+User.hasMany(UserProjects, { foreignKey: 'UserId' });
+UserProjects.belongsTo(User, { foreignKey: 'UserId' });
 
 module.exports = User;

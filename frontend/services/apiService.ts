@@ -22,8 +22,11 @@ export const deleteUser = (userId: any) => axiosInstance.delete(`/api/users/${us
 
 // Project APIs
 export const getProjects = () => axiosInstance.get('/api/projects');
+export const getProject = (projectId: any) => axiosInstance.get(`/api/projects/one/${projectId}`);
 export const createProject = (project: any) => axiosInstance.post('/api/projects', project);
 export const updateProject = (projectId: any, updatedProject: any) => axiosInstance.put(`/api/projects/${projectId}`, updatedProject);
 export const deleteProject = (projectId: any) => axiosInstance.delete(`/api/projects/${projectId}`);
+export const updateProjectUsers = (projectId: any, userIds: any) => axiosInstance.put(`/api/projects/${projectId}/users`, { userIds });
+
 // Auth APIs
 export const login = (credentials: any) => axiosInstance.post('/api/auth/login', credentials);

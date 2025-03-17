@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Correct import
 const { v4: uuidv4 } = require('uuid'); // Import UUID
+const UserProjects = require('./UserProjects'); // Import UserProjects
 
 const Project = sequelize.define('Project', {
   id: {
@@ -21,5 +22,8 @@ const Project = sequelize.define('Project', {
     allowNull: false,
   },
 });
+
+Project.hasMany(UserProjects, { foreignKey: 'ProjectId' });
+UserProjects.belongsTo(Project, { foreignKey: 'ProjectId' });
 
 module.exports = Project;

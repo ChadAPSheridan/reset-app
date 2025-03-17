@@ -20,7 +20,7 @@ const ProjectsPage = () => {
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState(''); // New state for project description
   const [selectedProject, setSelectedProject] = useState<Project | null>(null); // Update type to include description
-  const [showDialog, setShowDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false); // New state for project dialog
   const [isEditProjectDialogOpen, setIsEditProjectDialogOpen] = useState(false); // New state for project
   const [currentUserId, setCurrentUserId] = useState<string | null>(null); // State for current user's ID
@@ -81,18 +81,19 @@ const ProjectsPage = () => {
         const updatedProjects = projects.filter((project) => project.id !== selectedProject.id);
         setProjects(updatedProjects);
         setSelectedProject(null);
+        setShowDeleteDialog(false); // Close dialog after deleting project
       });
     }
   };
 
-  const handleProjectClick = (project: Project) => {
-    setSelectedProject(project);
-    setProjectName(project.name);
-    setProjectDescription(project.description || ''); // Set description when project is clicked
+  const handleDeleteDialogClose = () => {
+    setShowDeleteDialog(false);
   };
 
-  const handleDialogClose = () => {
-    setShowDialog(false);
+  const handleCreateProjectClick = () => {
+    setProjectName('');
+    setProjectDescription('');
+    setIsProjectDialogOpen(true);
   };
 
   return (
@@ -103,7 +104,7 @@ const ProjectsPage = () => {
             Projects
           </div>
           <div className="board-header-buttons">
-            <Button onClick={() => setIsProjectDialogOpen(true)} icon={faPlus}>
+            <Button onClick={handleCreateProjectClick} icon={faPlus}>
               Create Project
             </Button>
           </div>
@@ -118,7 +119,7 @@ const ProjectsPage = () => {
                 const project = projects.find(p => p.id === projectId);
                 if (project) setSelectedProject(project);
               }}
-              setIsDeleteDialogOpen={setShowDialog}
+              setIsDeleteDialogOpen={setShowDeleteDialog}
               onEditClick={() => {
                 setSelectedProject(project);
                 setProjectName(project.name);
@@ -130,9 +131,11 @@ const ProjectsPage = () => {
         </ul>
 
         <Dialog
-          isOpen={showDialog}
+          isOpen={showDeleteDialog}
           title="Delete Project"
-          onClose={handleDialogClose}
+          submitLabel="Delete"
+          cancelLabel="Cancel"
+          onClose={handleDeleteDialogClose}
           onSubmit={handleDeleteProject}
         >
           <p>Are you sure you want to delete this task?</p>

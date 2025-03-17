@@ -23,20 +23,15 @@ router.delete('/:id', authenticate, checkAdmin, (req, res, next) => {
   next();
 }, projectController.deleteProject);
 
-// Assign a user to a project
-router.post('/:id/users', authenticate, checkAdmin, (req, res, next) => {
-  console.log('Assign user to project route called with id:', req.params.id, 'and body:', req.body);
+// Update project users
+router.put('/:id/users', authenticate, checkAdmin, (req, res, next) => {
+  console.log('Update project users route called with id:', req.params.id, 'and body:', req.body);
   next();
-}, projectController.assignUserToProject);
+}, projectController.updateProjectUsers);
 
-// Remove a user from a project
-router.delete('/:id/users/:userId', authenticate, checkAdmin, (req, res, next) => {
-  console.log('Remove user from project route called with id:', req.params.id, 'and userId:', req.params.userId);
-  next();
-}, projectController.removeUserFromProject);
 
 // Get a single project
-router.get('/:id', authenticate, checkProjectAccess, (req, res, next) => {
+router.get('/one/:id', authenticate, checkAdmin, (req, res, next) => {
   console.log('Get project route called with id:', req.params.id);
   next();
 }, projectController.getProject);
