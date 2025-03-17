@@ -14,7 +14,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     setIsClient(true);
     const authUserString = localStorage.getItem('authUser');
     if (!authUserString) {
-      router.push('/login');
+      if (router.pathname !== '/login') {
+        router.push('/login');
+      }
     }
   }, [router]);
 
