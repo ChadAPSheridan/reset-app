@@ -10,8 +10,16 @@ const UserProjects = sequelize.define('UserProjects', {
     type: DataTypes.UUID,
     primaryKey: true,
   },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
 }, {
-  timestamps: false,
+  timestamps: true,
 });
 
 module.exports = UserProjects;
