@@ -16,6 +16,10 @@ const Project = sequelize.define('Project', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
+  owner: {
+    type: DataTypes.UUID,
+    allowNull: false,
+  },
 });
 
 module.exports = Project;
