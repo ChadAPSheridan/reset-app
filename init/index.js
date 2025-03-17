@@ -339,7 +339,7 @@ const createAppTables = async (sequelizeApp) => {
     console.log('Admin user created successfully.');
 
     // Insert default project
-    const defaultProject = await Project.create({ name: 'Default Project', description: 'This is the default project.' });
+    const defaultProject = await Project.create({ name: 'Default Project', description: 'This is the default project.', owner: adminUser.id });
 
     // Ensure the default project is created before creating columns
     await defaultProject.save();

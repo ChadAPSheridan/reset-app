@@ -21,3 +21,10 @@ export interface User {
   email: string;
   permissionLevel: 'user' | 'admin'; // Add permissionLevel property
 }
+
+export interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  owner: string;
+}

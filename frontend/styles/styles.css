@@ -334,7 +334,8 @@ body {
   font-size: larger;
 }
 
-.column-header {
+.column-header,
+.project-header {
   position: relative;
   display: flex;
   align-items: center;
@@ -828,4 +829,40 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+}
+.project-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.project-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
+  cursor: pointer;
+  gap: 10px;
+}
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.project-header h3 {
+  text-transform: capitalize;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+.project-actions {
+  display: flex;
+  gap: 10px;
+}
+.project-card:hover {
+  background-color: #f0f0f0;
 }
