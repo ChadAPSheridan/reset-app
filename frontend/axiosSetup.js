@@ -32,7 +32,14 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Refresh the authentication token on successful API calls
+    const newToken = response.headers['authorization'];
+    if (newToken) {
+      localStorage.setItem('authToken', newToken);
+    }
+    return response;
+  },
   (error) => {
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       alert('Session expired or access denied. Redirecting to login page.');

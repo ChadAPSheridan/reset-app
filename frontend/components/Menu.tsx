@@ -91,15 +91,16 @@ const Menu: React.FC = () => {
       <div className="menu-content">
         <div className="menu-sections">
           <div className="menu-section">
-            <h2 onClick={toggleTasks}>
+            <h2 onClick={!isCollapsed ? toggleTasks : undefined}>
               <FontAwesomeIcon icon={faTasks} className="menu-icon" />
               {!isCollapsed && ' Projects'}
-              <FontAwesomeIcon icon={isTasksExpanded ? faChevronUp : faChevronDown} className="chevron" />
+              {!isCollapsed && (<FontAwesomeIcon icon={isTasksExpanded ? faChevronUp : faChevronDown} className="chevron" />)}
             </h2>
             {isTasksExpanded && (
               <ul>
                 {projects.map((project) => (
-                  <li key={project.id} onClick={() => handleProjectClick(project.id, project.name)}>
+                  <li className="menu-project" key={project.id} onClick={() => handleProjectClick(project.id, project.name)}>
+                    <img src="/Reset-Logo.svg" alt="Reset Project Logo" className="project-logo" />
                     {project.name}
                   </li>
                 ))}
@@ -108,21 +109,21 @@ const Menu: React.FC = () => {
             {isCollapsed && (
               <div className="submenu">
                 <ul>
-                  <li>
-                    <a onClick={() => handleNavigation('/tasks')}>
-                      <FontAwesomeIcon icon={faTasks} />
-                      {' Go to Task Board'}
-                    </a>
-                  </li>
+                  {projects.map((project) => (
+                    <li className="menu-project" key={project.id} onClick={() => handleProjectClick(project.id, project.name)}>
+                      <img src="/Reset-Logo.svg" alt="Reset Project Logo" className="project-logo" />
+                      {project.name}
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
           </div>
           <div className="menu-section">
-            <h2 onClick={toggleConfig}>
+            <h2 onClick={!isCollapsed ? toggleConfig : undefined}>
               <FontAwesomeIcon icon={faCog} className="menu-icon" />
               {!isCollapsed && ' Config'}
-              <FontAwesomeIcon icon={isConfigExpanded ? faChevronUp : faChevronDown} className="chevron" />
+              {!isCollapsed && (<FontAwesomeIcon icon={isTasksExpanded ? faChevronUp : faChevronDown} className="chevron" />)}
             </h2>
             {isConfigExpanded && (
               <ul>
@@ -139,6 +140,24 @@ const Menu: React.FC = () => {
                   </a>
                 </li>
               </ul>
+            )}
+            {isCollapsed && (
+              <div className="submenu">
+                <ul>
+                  <li>
+                    <a onClick={() => handleNavigation('/user-management')}>
+                      <FontAwesomeIcon icon={faCog} />
+                      User Management
+                    </a>
+                  </li>
+                  <li>
+                    <a onClick={() => handleNavigation('/projects')}>
+                      <FontAwesomeIcon icon={faCog} />
+                      Project Management
+                    </a>
+                  </li>
+                </ul>
+              </div>
             )}
           </div>
         </div>
