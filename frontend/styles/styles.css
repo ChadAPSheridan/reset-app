@@ -135,12 +135,33 @@ body {
 .menu-section ul li a svg {
   margin-right: 10px;
 }
-
+.menu-project {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
 .chevron {
   margin-left: auto;
 }
 .logo-image {
   border: none;
+}
+.project-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-right: 10px;
 }
 .menu-icon {
   position: relative;
